@@ -54,7 +54,6 @@ Our mitigation capabilities cover the full scope of an emergency:
 - Tear-out of unsalvageable drywall, insulation, carpet, and flooring
 - Pack-out: your belongings inventoried, packed, stored out of the work zone, and returned
 - Coordination of asbestos and lead testing when a home's age requires it before demolition
-- Biohazard cleanup
 
 ## Water damage restoration
 

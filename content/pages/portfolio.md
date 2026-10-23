@@ -36,7 +36,7 @@ word_target: 450
 
 # Projects by Masizo
 
-Three decades of building leaves a trail — kitchens that became the center of the house, backyards that gained a second front door, homes rebuilt after the worst week their owners can remember. This page is that trail. Every photo here is from a real Masizo project, and every caption states only what we can stand behind: what we built, and where. When something catches your eye, the linked service page explains how that kind of project runs.
+Twenty-eight years of building leaves a trail — kitchens that became the center of the house, backyards that gained a second front door, homes rebuilt after the worst week their owners can remember. This page is that trail. Every photo here is from a real Masizo project, and every caption states only what we can stand behind: what we built, and where. When something catches your eye, the linked service page explains how that kind of project runs.
 
 ## Kitchens
 

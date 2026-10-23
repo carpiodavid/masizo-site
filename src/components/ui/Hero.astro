@@ -23,7 +23,7 @@ interface Props {
   /** Show the big tap-to-call action automatically (emergency defaults on). */
   phone?: boolean;
 }
-const { variant = "home", tone = "bone", eyebrow, title, phone } = Astro.props;
+const { variant = "home", tone = "bone", eyebrow, title, phone , headingLevel = "h1" } = Astro.props;
 const dark = tone === "agave" || tone === "clay";
 const showPhone = phone ?? variant === "emergency";
 ---
@@ -33,7 +33,7 @@ const showPhone = phone ?? variant === "emergency";
     <div class="hero-copy">
       {eyebrow && <p class="kicker">{eyebrow}</p>}
       <slot name="heading">
-        {title && <h1 class="hero-title">{title}</h1>}
+        {title && headingLevel === "h2" ? <h2 class="hero-title">{title}</h2> : title && <h1 class="hero-title">{title}</h1>}
       </slot>
       <div class="hero-lede"><slot /></div>
       {

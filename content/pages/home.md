@@ -1,6 +1,6 @@
 ---
 slug: /
-title: "Masizo Development | Custom Homes, ADUs & Restoration in Gilbert, AZ"
+title: "Masizo Development | Gilbert Custom Homes, ADUs & Restoration"
 description: "Licensed Gilbert, AZ general contractor and 24/7 restoration firm. Custom homes, remodels, ADUs, roofing and emergency restoration — East Valley, since 1998."
 intent: "Brand searches ('masizo development') + broad local commercial ('general contractor Gilbert AZ', 'custom home builder Gilbert', 'home remodeling Gilbert'). Convert to calls/leads; route everyone else to the right service page within one scroll."
 faqs:
@@ -89,7 +89,7 @@ We're Masizo Development LLC — Arizona general contractor license [[LICENSE_GC
 
 ## Why Homeowners Keep Our Number
 
-- **[[YEARS]] in Arizona.** We started building here in 1998. The contractors who last three decades in this market are the ones whose work holds up — and whose phone gets answered.
+- **[[YEARS]] in Arizona.** We started building here in 1998. The contractors who last this long in this market are the ones whose work holds up — and whose phone gets answered.
 - **Three licenses, held in our own name.** Arizona general ([[LICENSE_GC]]), Arizona restoration ([[LICENSE_RESTORATION]]), California ([[LICENSE_CA]]). Look them up — we'd rather you verify than take our word.
 - **IICRC certified, insured, BBB A+.** The restoration industry's own certification standard, real insurance, and an accreditation that has to be earned and kept.
 - **Real reviews, from real clients.** Our Google reviews are written by homeowners and trade partners we've actually worked with — read them in full, with names and links, on our [testimonials page](/testimonials).

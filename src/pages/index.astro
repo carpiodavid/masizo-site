@@ -226,7 +226,7 @@ const schema = [faqNode(page.faqItems.map((f) => ({ question: f.q, answerHtml: f
       </ol>
     </Section>
 
-    <Hero variant="emergency" tone="clay" eyebrow="24/7 restoration" title="Water, fire, or mold? Call now.">
+    <Hero variant="emergency" tone="clay" eyebrow="24/7 restoration" title="Water, fire, or mold? Call now." headingLevel="h2">
       {emergencyNoteHtml && <p set:html={emergencyNoteHtml} />}
       <a slot="actions" class="link-arrow" href="/services/restoration">
         How restoration works
