@@ -1,20 +1,76 @@
 ---
 /**
- * Real 404 page (handoff §5). Cloudflare Pages serves dist/404.html
- * automatically for unmatched routes on a static site.
- * Content/design agents: make it useful (nav back to services/contact).
+ * Real 404 (handoff §5). Cloudflare Pages serves dist/404.html for unmatched
+ * routes. Useful, not a dead end: services, contact, tap-to-call.
  */
 import Base from "../layouts/Base.astro";
-import { DISPLAY_NAME, PHONE_TEL, PHONE_DISPLAY } from "../data/business";
+import Header from "../components/ui/Header.astro";
+import Footer from "../components/ui/Footer.astro";
+import Section from "../components/ui/Section.astro";
+import StickyCallBar from "../components/ui/StickyCallBar.astro";
+import { DISPLAY_NAME, PHONE_DISPLAY, PHONE_TEL, SERVICES } from "../data/business";
 ---
 
 <Base title={`Page Not Found | ${DISPLAY_NAME}`} noindex>
-  <main>
-    <h1>Page not found</h1>
-    <p>[CONTENT: 404 — pending content agent]</p>
-    <p>
-      <a href="/">Home</a> · <a href="/services">Services</a> ·
-      <a href="/contact">Contact</a> · <a href={PHONE_TEL}>{PHONE_DISPLAY}</a>
-    </p>
+  <Header />
+  <main id="main">
+    <Section eyebrow="404" title="That page isn't here.">
+      <div class="nf-copy reveal">
+        <p>
+          The address may have changed when we rebuilt the site, or the link you followed is out
+          of date. Nothing is lost — everything we do is one click away:
+        </p>
+        <ul class="nf-links">
+          <li><a href="/">Homepage</a></li>
+          <li><a href="/services">All services</a></li>
+          {SERVICES.filter((s) => s.emergency).map((s) => (
+            <li><a href={s.path}>24/7 restoration</a></li>
+          ))}
+          <li><a href="/portfolio">Our work</a></li>
+          <li><a href="/contact">Contact &amp; free estimates</a></li>
+        </ul>
+        <p>
+          Or skip the clicking: call <a href={PHONE_TEL}>{PHONE_DISPLAY}</a> and tell us what you
+          were looking for.
+        </p>
+      </div>
+    </Section>
   </main>
+  <Footer />
+  <StickyCallBar />
 </Base>
+
+<style>
+  .nf-copy {
+    max-width: 60ch;
+  }
+  .nf-copy p {
+    color: var(--c-ink-soft);
+    font-size: var(--text-lg);
+  }
+  .nf-copy p + p {
+    margin-top: var(--space-5);
+  }
+  .nf-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-5);
+    list-style: none;
+    margin: var(--space-5) 0 0;
+    padding: 0;
+  }
+  .nf-links a {
+    font-weight: 650;
+    font-size: var(--text-sm);
+    letter-spacing: var(--track-wide);
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  .nf-links li + li {
+    padding-left: var(--space-5);
+    border-left: 1px solid var(--c-line);
+  }
+  .nf-copy p:last-child {
+    margin-top: var(--space-6);
+  }
+</style>

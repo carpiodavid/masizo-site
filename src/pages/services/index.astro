@@ -1,21 +1,234 @@
 ---
 /**
- * ROUTE STUB — scaffold agent. Services hub (/services).
- * Content agent: copy + meta; schema: add an ItemList node of SERVICES
- * (live page carries ItemList, handoff §3).
+ * /services — the hub, built from content/pages/services/index.md.
+ * Each service H2 renders as a ledger row (comp-B scope-bullet treatment,
+ * per THE DECISION): index numeral, linked Fraunces title, blurb (keeps the
+ * content's inline links, so it is not one big anchor), uppercase scope
+ * bullets from the section's list items.
  */
 import Base from "../../layouts/Base.astro";
-import { SERVICES, DISPLAY_NAME } from "../../data/business";
+import Header from "../../components/ui/Header.astro";
+import Footer from "../../components/ui/Footer.astro";
+import Hero from "../../components/ui/Hero.astro";
+import Section from "../../components/ui/Section.astro";
+import TrustStrip from "../../components/ui/TrustStrip.astro";
+import FAQ from "../../components/ui/FAQ.astro";
+import CTABand from "../../components/ui/CTABand.astro";
+import StickyCallBar from "../../components/ui/StickyCallBar.astro";
+import Breadcrumbs from "../../components/ui/Breadcrumbs.astro";
+import Prose from "../../components/Prose.astro";
+import { SERVICES } from "../../data/business";
+import { breadcrumbNode, faqNode } from "../../components/schema-nodes";
+import { crumbsForNav, crumbsForSchema, loadPage } from "../../lib/content";
+import { resolveFacts } from "../../lib/facts";
+
+const page = loadPage("services/index.md");
+
+// The md's nine service sections, in document order -> business.ts slugs.
+const SECTION_SLUGS = [
+  "custom-homes",
+  "adu-construction",
+  "home-remodeling",
+  "kitchen-remodeling",
+  "bathroom-remodeling",
+  "room-additions",
+  "roofing",
+  "restoration",
+  "commercial",
+] as const;
+
+interface Row {
+  index: string;
+  title: string;
+  href: string;
+  emergency: boolean;
+  blurbHtml: string;
+  bullets: string[];
+}
+
+const serviceSections = page.sections.slice(0, SECTION_SLUGS.length);
+const closingSection = page.sections[SECTION_SLUGS.length];
+
+const rows: Row[] = serviceSections.map((section, i) => {
+  const slug = SECTION_SLUGS[i];
+  const service = SERVICES.find((s) => s.slug === slug);
+  if (!service) throw new Error(`services index: unknown slug ${slug}`);
+
+  // Pull the scope bullets (the section's <ul>) out of the rendered html.
+  let bullets: string[] = [];
+  let blurbHtml = section.html.replace(/<ul>([\s\S]*?)<\/ul>/, (_m, items: string) => {
+    bullets = [...items.matchAll(/<li>([\s\S]*?)<\/li>/g)].map((m) => m[1]);
+    return "";
+  });
+  // Drop the trailing "[Name →](path)" arrow link — the row title is the link.
+  blurbHtml = blurbHtml.replace(
+    new RegExp(`\\s*<a href="${service.path}">[^<]*→</a>`),
+    ""
+  );
+
+  return {
+    index: String(i + 1).padStart(2, "0"),
+    title: section.title,
+    href: service.path,
+    emergency: service.emergency,
+    blurbHtml,
+    bullets,
+  };
+});
+
+const schema = [
+  breadcrumbNode(crumbsForSchema(page.data.breadcrumbs)),
+  faqNode(page.faqItems.map((f) => ({ question: f.q, answerHtml: f.answerHtml }))),
+];
 ---
 
-<Base title={`Services | ${DISPLAY_NAME}`}>
-  <main>
-    <h1>Services</h1>
-    <p>[CONTENT: services — pending content agent]</p>
-    <ul>
-      {SERVICES.map((service) => (
-        <li><a href={service.path}>{service.name}</a></li>
-      ))}
-    </ul>
+<Base title={page.title} description={page.description} schema={schema}>
+  <Header />
+  <main id="main">
+    <div class="crumb-band">
+      <div class="container-wide">
+        <Breadcrumbs items={crumbsForNav(page.data.breadcrumbs)} />
+      </div>
+    </div>
+
+    <Hero variant="service" tone="bone" eyebrow="Every service, one contractor" title="Construction Services in Gilbert, AZ" phone={true}>
+      <div class="lede-stack" set:html={page.introHtml} />
+    </Hero>
+
+    <TrustStrip tone="bone" />
+
+    <Section eyebrow="Service index" title="The full scope, under one license.">
+      <div class="svc-ledger reveal">
+        {
+          rows.map((row) => (
+            <article class:list={["ledger-row", { emergency: row.emergency }]}>
+              <span class="row-index numeral" aria-hidden="true">{row.index}</span>
+              <div class="row-main">
+                <h2 class="row-title">
+                  <a href={row.href}>{row.title}</a>
+                  {row.emergency && <span class="row-badge">24/7</span>}
+                </h2>
+                <div class="row-blurb" set:html={row.blurbHtml} />
+                {row.bullets.length > 0 && (
+                  <p class="row-bullets" set:html={row.bullets.join("&nbsp; · &nbsp;")} />
+                )}
+              </div>
+              <a class="row-arrow" href={row.href} aria-label={`${row.title} — details`}>
+                <svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M3 10h13M11 4.5 16.5 10 11 15.5" />
+                </svg>
+              </a>
+            </article>
+          ))
+        }
+      </div>
+    </Section>
+
+    {
+      closingSection && (
+        <Section eyebrow="One contractor" title={closingSection.title} tone="agave">
+          <div class="reveal">
+            <Prose html={closingSection.html} />
+          </div>
+        </Section>
+      )
+    }
+
+    <Section eyebrow="Good to know" title="Questions about our services." tone="sand">
+      <div class="faq-wrap reveal">
+        <FAQ items={page.faqItems.map((f) => ({ q: f.q, answerHtml: f.answerHtml }))} openFirst />
+      </div>
+    </Section>
+
+    <CTABand title={resolveFacts(page.data.cta?.primary ?? "Get a free estimate")} />
   </main>
+  <Footer />
+  <StickyCallBar />
 </Base>
+
+<style>
+  .crumb-band {
+    padding-top: var(--space-5);
+  }
+  :global(.lede-stack p + p) {
+    margin-top: var(--space-4);
+  }
+  .svc-ledger {
+    border-top: 1px solid var(--c-line);
+  }
+  .ledger-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--space-5);
+    align-items: baseline;
+    padding: var(--space-6) var(--space-2);
+    border-bottom: 1px solid var(--c-line);
+  }
+  .row-index {
+    font-size: var(--text-xl);
+    min-width: 2.2ch;
+  }
+  .row-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    font-size: var(--text-2xl);
+    font-weight: 540;
+    letter-spacing: -0.01em;
+    line-height: var(--leading-snug);
+  }
+  .row-title a {
+    color: var(--c-ink);
+    text-decoration: none;
+  }
+  .row-title a:hover {
+    color: var(--c-clay-deep);
+  }
+  .row-badge {
+    font-family: var(--font-text);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 0.25em 0.55em;
+    border-radius: var(--radius-xs);
+    background: var(--c-clay);
+    color: var(--c-bone-on-dark);
+    transform: translateY(-0.2em);
+  }
+  .row-blurb {
+    margin-top: var(--space-3);
+    max-width: 62ch;
+    color: var(--c-ink-soft);
+  }
+  .row-bullets {
+    margin-top: var(--space-3);
+    font-size: var(--text-xs);
+    font-weight: 560;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--c-clay-deep);
+  }
+  .row-arrow {
+    align-self: center;
+    color: var(--c-clay);
+    transition: transform 140ms ease;
+  }
+  .row-arrow svg {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+  .ledger-row:hover .row-arrow {
+    transform: translateX(4px);
+  }
+  .faq-wrap {
+    max-width: 50rem;
+  }
+  @media (max-width: 639px) {
+    .ledger-row {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+    .row-arrow {
+      display: none;
+    }
+  }
+</style>

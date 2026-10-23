@@ -41,7 +41,7 @@ A real person from our team reads every submission and calls you back to talk sc
 
 You'll be dealing with Masizo Development LLC — Arizona general contractor [[LICENSE_GC]], Arizona restoration license [[LICENSE_RESTORATION]], California license [[LICENSE_CA]] — insured, IICRC certified, and BBB accredited with an A+ rating. Based in Gilbert, working across [[CITIES]] — details on our [service areas page](/service-areas).
 
-<!-- FORM COMPONENT renders here. Fields: name*, phone*, email (optional), city, service (dropdown: 9 services + "Something else"), message, hidden honeypot. The disclosure below MUST render next to the submit button (A2P/carrier requirement + handoff §2/§5). -->
+<!-- FORM COMPONENT renders here. Fields: name*, phone*, city, service (dropdown: 9 services + "Something else"), message, hidden honeypot — exactly the functions/api/lead.ts contract (it accepts no email field). The disclosure below MUST render next to the submit button (A2P/carrier requirement + handoff §2/§5). -->
 
 **SMS consent disclosure (form fine print):** By providing your phone number and submitting this form, you agree that Masizo Development LLC may call or text you at that number about your inquiry, project updates, and scheduling. Message frequency varies by project status. Message and data rates may apply. Reply STOP at any time to opt out, or HELP for help. You must be 18 or older to opt in. We never share your mobile number or opt-in consent with third parties for marketing. See our [Terms and Conditions](/terms-and-conditions) and [Privacy Policy](/privacy-policy).
 

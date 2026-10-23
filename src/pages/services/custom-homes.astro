@@ -1,19 +1,23 @@
 ---
-/**
- * ROUTE STUB — scaffold agent. Content agent owns everything inside <Base>.
- * Fill: copy (~3,300+ words parity bar), FAQ section, hand-written meta
- * description, and schema nodes via schema-nodes.ts
- * (serviceNode + breadcrumbNode + faqNode — see handoff §5).
- */
-import Base from "../../layouts/Base.astro";
-import { SERVICES, DISPLAY_NAME } from "../../data/business";
-
-const service = SERVICES.find((s) => s.slug === "custom-homes")!;
+/** /services/custom-homes — built from content/pages/services/custom-homes.md. */
+import ServicePage from "../../components/ServicePage.astro";
 ---
 
-<Base title={`${service.name} | ${DISPLAY_NAME}`}>
-  <main>
-    <h1>{service.name}</h1>
-    <p>[CONTENT: services/custom-homes — pending content agent]</p>
-  </main>
-</Base>
+<ServicePage
+  contentFile="services/custom-homes.md"
+  serviceSlug="custom-homes"
+  hero={{
+    eyebrow: "Ground-up builds, on your lot",
+    photo: { label: "finished custom home exterior, golden hour", ratio: "3/4", tone: "clay" },
+  }}
+  sections={[
+    { eyebrow: "One builder" },
+    { eyebrow: "Your lot" },
+    { eyebrow: "Design paths" },
+    { eyebrow: "Permits & inspections" },
+    { eyebrow: "The build", tone: "agave" },
+    { eyebrow: "Where the money goes", tone: "bone" },
+    { eyebrow: "Licensed AZ & CA", tone: "sand" },
+  ]}
+  faqTitle="Custom home questions, answered."
+/>

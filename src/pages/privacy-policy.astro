@@ -1,17 +1,72 @@
 ---
 /**
- * ROUTE STUB — scaffold agent. Privacy policy (/privacy-policy).
- * Content agent: MUST disclose GA4 tracking (and any Ads/Meta tags once
- * live), the lead-form data handling (KV + email via Resend), and the SMS
- * program terms (handoff §5 tracking spec + §2 SMS program).
+ * /privacy-policy — built from content/pages/privacy-policy.md.
+ * Discloses GA4, Cloudflare hosting, the lead form's KV + Resend path, and
+ * the SMS program (all drafted in the .md; attorney review is a launch gate
+ * noted there). Single text column.
  */
 import Base from "../layouts/Base.astro";
-import { DISPLAY_NAME } from "../data/business";
+import Header from "../components/ui/Header.astro";
+import Footer from "../components/ui/Footer.astro";
+import Hero from "../components/ui/Hero.astro";
+import Section from "../components/ui/Section.astro";
+import StickyCallBar from "../components/ui/StickyCallBar.astro";
+import Breadcrumbs from "../components/ui/Breadcrumbs.astro";
+import Prose from "../components/Prose.astro";
+import { breadcrumbNode } from "../components/schema-nodes";
+import { crumbsForNav, crumbsForSchema, loadPage } from "../lib/content";
+
+const page = loadPage("privacy-policy.md");
+const schema = [breadcrumbNode(crumbsForSchema(page.data.breadcrumbs))];
 ---
 
-<Base title={`Privacy Policy | ${DISPLAY_NAME}`}>
-  <main>
-    <h1>Privacy Policy</h1>
-    <p>[CONTENT: privacy-policy — pending content agent]</p>
+<Base title={page.title} description={page.description} schema={schema}>
+  <Header />
+  <main id="main">
+    <div class="crumb-band">
+      <div class="container-wide">
+        <Breadcrumbs items={crumbsForNav(page.data.breadcrumbs)} />
+      </div>
+    </div>
+
+    <Hero variant="service" tone="bone" eyebrow="Plain-language policy" title={page.h1 ?? "Privacy Policy"} phone={false}>
+      <div class="lede-stack" set:html={page.introHtml} />
+    </Hero>
+
+    <Section tight>
+      <div class="legal-body">
+        {
+          page.sections.map((section) => (
+            <section class="legal-section">
+              <h2>{section.title}</h2>
+              <Prose html={section.html} />
+            </section>
+          ))
+        }
+      </div>
+    </Section>
   </main>
+  <Footer />
+  <StickyCallBar />
 </Base>
+
+<style>
+  .crumb-band {
+    padding-top: var(--space-5);
+  }
+  :global(.lede-stack p + p) {
+    margin-top: var(--space-4);
+  }
+  .legal-body {
+    max-width: var(--container-text);
+  }
+  .legal-section + .legal-section {
+    margin-top: var(--space-7);
+  }
+  .legal-section h2 {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-4);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--c-line);
+  }
+</style>

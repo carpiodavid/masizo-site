@@ -1,19 +1,23 @@
 ---
-/**
- * ROUTE STUB — scaffold agent. Content agent owns everything inside <Base>.
- * Fill: copy (~3,300+ words parity bar), FAQ section, hand-written meta
- * description, and schema nodes via schema-nodes.ts
- * (serviceNode + breadcrumbNode + faqNode — see handoff §5).
- */
-import Base from "../../layouts/Base.astro";
-import { SERVICES, DISPLAY_NAME } from "../../data/business";
-
-const service = SERVICES.find((s) => s.slug === "roofing")!;
+/** /services/roofing — built from content/pages/services/roofing.md. */
+import ServicePage from "../../components/ServicePage.astro";
 ---
 
-<Base title={`${service.name} | ${DISPLAY_NAME}`}>
-  <main>
-    <h1>{service.name}</h1>
-    <p>[CONTENT: services/roofing — pending content agent]</p>
-  </main>
-</Base>
+<ServicePage
+  contentFile="services/roofing.md"
+  serviceSlug="roofing"
+  hero={{
+    eyebrow: "Tile · shingle · flat roofs",
+    photo: { label: "tile roof replacement in progress — Gilbert", ratio: "3/4", tone: "stone" },
+  }}
+  sections={[
+    { eyebrow: "Free inspection" },
+    { eyebrow: "The honest call" },
+    { eyebrow: "Roof systems" },
+    { eyebrow: "Storm season" },
+    { eyebrow: "Insurance claims" },
+    { eyebrow: "How it works", tone: "agave" },
+    { eyebrow: "Licensed & local", tone: "bone" },
+  ]}
+  faqTitle="Roofing questions, answered."
+/>

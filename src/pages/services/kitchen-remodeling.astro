@@ -1,19 +1,23 @@
 ---
-/**
- * ROUTE STUB — scaffold agent. Content agent owns everything inside <Base>.
- * Fill: copy (~3,300+ words parity bar), FAQ section, hand-written meta
- * description, and schema nodes via schema-nodes.ts
- * (serviceNode + breadcrumbNode + faqNode — see handoff §5).
- */
-import Base from "../../layouts/Base.astro";
-import { SERVICES, DISPLAY_NAME } from "../../data/business";
-
-const service = SERVICES.find((s) => s.slug === "kitchen-remodeling")!;
+/** /services/kitchen-remodeling — built from content/pages/services/kitchen-remodeling.md. */
+import ServicePage from "../../components/ServicePage.astro";
 ---
 
-<Base title={`${service.name} | ${DISPLAY_NAME}`}>
-  <main>
-    <h1>{service.name}</h1>
-    <p>[CONTENT: services/kitchen-remodeling — pending content agent]</p>
-  </main>
-</Base>
+<ServicePage
+  contentFile="services/kitchen-remodeling.md"
+  serviceSlug="kitchen-remodeling"
+  hero={{
+    eyebrow: "Cabinets · counters · layout",
+    photo: { label: "finished kitchen remodel — wide shot, Mesa", ratio: "3/4", tone: "clay" },
+  }}
+  sections={[
+    { eyebrow: "One company" },
+    { eyebrow: "Cabinets & counters" },
+    { eyebrow: "Power & light" },
+    { eyebrow: "Layout & floors" },
+    { eyebrow: "Hidden damage" },
+    { eyebrow: "Selections & cost" },
+    { eyebrow: "How it works", tone: "agave" },
+  ]}
+  faqTitle="Kitchen questions, answered."
+/>

@@ -1,0 +1,196 @@
+---
+/**
+ * ServicePage — shared composer for the nine /services/* pages (assembly
+ * agent). Loads the page's content/pages/services/*.md source, maps its
+ * frontmatter contract onto the design system:
+ *
+ *   title/description -> Base props
+ *   schema_service    -> serviceNode()
+ *   breadcrumbs       -> breadcrumbNode() + <Breadcrumbs/>
+ *   faqs              -> faqNode() in schema AND <FAQ/> on page (same data)
+ *   cta               -> <CTABand/>
+ *   H2 sections       -> <Section/> rhythm stamp (kickers per page)
+ *
+ * Hero: variant "service" by default; the emergency path (restoration /
+ * commercial, cta.emergency) takes the clay emergency treatment.
+ */
+import Base from "../layouts/Base.astro";
+import Header from "./ui/Header.astro";
+import Footer from "./ui/Footer.astro";
+import Hero from "./ui/Hero.astro";
+import Section from "./ui/Section.astro";
+import TrustStrip from "./ui/TrustStrip.astro";
+import FAQ from "./ui/FAQ.astro";
+import CTABand from "./ui/CTABand.astro";
+import StickyCallBar from "./ui/StickyCallBar.astro";
+import Breadcrumbs from "./ui/Breadcrumbs.astro";
+import PhotoPlaceholder from "./ui/PhotoPlaceholder.astro";
+import Prose from "./Prose.astro";
+import { SERVICES } from "../data/business";
+import { breadcrumbNode, faqNode, serviceNode } from "./schema-nodes";
+import { crumbsForNav, crumbsForSchema, loadPage, slugify } from "../lib/content";
+import { resolveFacts } from "../lib/facts";
+
+type Tone = "bone" | "sand" | "stone" | "agave" | "clay";
+
+interface SectionMeta {
+  /** Kicker label for the rhythm stamp. */
+  eyebrow?: string;
+  tone?: Tone;
+  id?: string;
+}
+
+interface Props {
+  /** Path under content/pages/, e.g. "services/roofing.md". */
+  contentFile: string;
+  /** Slug in business.ts SERVICES. */
+  serviceSlug: string;
+  hero?: {
+    variant?: "service" | "emergency";
+    tone?: Tone;
+    eyebrow?: string;
+    h1?: string;
+    /** Placeholder shot for the hero media column (omit on emergency). */
+    photo?: { label: string; ratio?: "16/9" | "4/3" | "3/4" | "1/1" | "3/2"; tone?: "clay" | "agave" | "sand" | "stone" };
+  };
+  /** Per-H2 overrides, applied in document order (index-matched). */
+  sections?: SectionMeta[];
+  faqTitle?: string;
+  faqEyebrow?: string;
+  cta?: {
+    tone?: "agave" | "clay" | "ink";
+    eyebrow?: string;
+    title?: string;
+    secondaryHref?: string;
+    secondaryLabel?: string;
+  };
+}
+
+const { contentFile, serviceSlug, hero = {}, sections = [], faqTitle, faqEyebrow, cta = {} } = Astro.props;
+
+const page = loadPage(contentFile);
+const { data } = page;
+
+const service = SERVICES.find((s) => s.slug === serviceSlug);
+if (!service) throw new Error(`ServicePage: unknown service slug "${serviceSlug}"`);
+
+// schema_service -> serviceNode (name from the frontmatter, URL from business.ts)
+const svcForSchema = data.schema_service ? { ...service, name: data.schema_service.name } : service;
+const schema = [
+  serviceNode(svcForSchema, data.schema_service?.description),
+  breadcrumbNode(crumbsForSchema(data.breadcrumbs)),
+  ...(page.faqItems.length
+    ? [faqNode(page.faqItems.map((f) => ({ question: f.q, answerHtml: f.answerHtml })))]
+    : []),
+];
+
+const h1 = hero.h1 ?? page.h1 ?? page.title.split("|")[0].trim();
+const heroVariant = hero.variant ?? "service";
+const heroTone = hero.tone ?? "bone";
+const heroEyebrow = hero.eyebrow ?? data.schema_service?.name;
+
+// CTA band from the frontmatter cta, with per-page overrides.
+const emergency = data.cta?.emergency === true;
+const ctaTone = cta.tone ?? (emergency ? "clay" : "agave");
+const ctaEyebrow = cta.eyebrow ?? (emergency ? "24/7 emergency line" : "Talk to a builder");
+const ctaTitle = cta.title ?? (data.cta ? resolveFacts(data.cta.primary) : undefined);
+const ctaSecondaryLabel =
+  cta.secondaryLabel ??
+  (data.cta?.secondary && !/\[\[PHONE\]\]/.test(data.cta.secondary)
+    ? resolveFacts(data.cta.secondary)
+    : "Request an estimate");
+const ctaSecondaryHref = cta.secondaryHref ?? "/contact";
+
+const defaultTones: Tone[] = ["bone", "sand"];
+const navCrumbs = crumbsForNav(data.breadcrumbs);
+---
+
+<Base title={page.title} description={page.description} schema={schema}>
+  <Header />
+  <main id="main">
+    {
+      navCrumbs.length > 0 && (
+        <div class="crumb-band tone-bone">
+          <div class="container-wide">
+            <Breadcrumbs items={navCrumbs} />
+          </div>
+        </div>
+      )
+    }
+
+    <Hero variant={heroVariant} tone={heroTone} eyebrow={heroEyebrow} title={h1} phone={true}>
+      <div class="lede-stack" set:html={page.introHtml} />
+      {
+        hero.photo && heroVariant !== "emergency" && (
+          <PhotoPlaceholder
+            slot="media"
+            label={hero.photo.label}
+            ratio={hero.photo.ratio ?? "3/4"}
+            tone={hero.photo.tone ?? "stone"}
+            class="svc-hero-photo reveal"
+          />
+        )
+      }
+    </Hero>
+
+    <TrustStrip tone="bone" />
+
+    {
+      page.sections.map((section, i) => {
+        const meta = sections[i] ?? {};
+        const tone = meta.tone ?? defaultTones[i % defaultTones.length];
+        const eyebrow = meta.eyebrow ?? String(i + 1).padStart(2, "0");
+        return (
+          <Section eyebrow={eyebrow} title={section.title} tone={tone} id={meta.id ?? slugify(section.title)}>
+            <div class="reveal">
+              <Prose html={section.html} />
+            </div>
+          </Section>
+        );
+      })
+    }
+
+    {
+      page.faqItems.length > 0 && (
+        <Section eyebrow={faqEyebrow ?? "Good to know"} title={faqTitle ?? "Questions homeowners ask."} tone="sand">
+          <div class="faq-wrap reveal">
+            <FAQ items={page.faqItems.map((f) => ({ q: f.q, answerHtml: f.answerHtml }))} openFirst />
+          </div>
+        </Section>
+      )
+    }
+
+    <CTABand
+      tone={ctaTone}
+      eyebrow={ctaEyebrow}
+      title={ctaTitle}
+      secondaryHref={ctaSecondaryHref}
+      secondaryLabel={ctaSecondaryLabel}
+    />
+  </main>
+  <Footer />
+  <StickyCallBar />
+</Base>
+
+<style>
+  .crumb-band {
+    padding-top: var(--space-5);
+  }
+  .faq-wrap {
+    max-width: 50rem;
+  }
+  :global(.lede-stack p + p) {
+    margin-top: var(--space-4);
+  }
+  :global(.svc-hero-photo) {
+    max-width: 24rem;
+    margin-left: auto;
+  }
+  @media (max-width: 899px) {
+    :global(.svc-hero-photo) {
+      max-width: 100%;
+      aspect-ratio: 16 / 10 !important;
+      margin-left: 0;
+    }
+  }
+</style>

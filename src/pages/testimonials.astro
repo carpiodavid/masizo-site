@@ -1,17 +1,133 @@
 ---
 /**
- * ROUTE STUB — scaffold agent. Reviews (/testimonials).
- * SHOP LAW (handoff §6.1): ONLY verifiably real reviews — their Google
- * reviews, attributed and linked to the GBP (GBP_MAPS_URL in business.ts).
- * Never fabricate. Review schema markup only for verified-real reviews.
+ * /testimonials — built from content/pages/testimonials.md.
+ * SHOP LAW (handoff §6.1): only real, attributed, linked Google reviews —
+ * every entry below is a LAUNCH-GATED SLOT from the .md, rendered with
+ * placeholder styling. Quotes are pasted verbatim from the GBP at launch;
+ * no Review/AggregateRating schema until then.
  */
 import Base from "../layouts/Base.astro";
-import { DISPLAY_NAME } from "../data/business";
+import Header from "../components/ui/Header.astro";
+import Footer from "../components/ui/Footer.astro";
+import Hero from "../components/ui/Hero.astro";
+import Section from "../components/ui/Section.astro";
+import TrustStrip from "../components/ui/TrustStrip.astro";
+import CTABand from "../components/ui/CTABand.astro";
+import StickyCallBar from "../components/ui/StickyCallBar.astro";
+import Breadcrumbs from "../components/ui/Breadcrumbs.astro";
+import ReviewExcerpt from "../components/ui/ReviewExcerpt.astro";
+import Prose from "../components/Prose.astro";
+import { breadcrumbNode } from "../components/schema-nodes";
+import { crumbsForNav, crumbsForSchema, loadPage, slugify } from "../lib/content";
+import { resolveFacts } from "../lib/facts";
+
+const page = loadPage("testimonials.md");
+
+const kickers = ["Remodels", "ADUs & casitas", "Restoration", "Homeowners & trades"];
+
+// Each slot line in the .md renders inside one blockquote; pull out
+// {signal, author} per line and keep any copy around the blockquote.
+interface Slot {
+  signal: string;
+  author: string;
+}
+const SLOT_RE = /\[REVIEW — verify against GBP before launch\]\s*"\[paste verbatim from GBP — job signal:\s*([^\]]+)\]"\s*—\s*(.+)/;
+
+const sections = page.sections.map((section, i) => {
+  const slots: Slot[] = [];
+  let before = section.html;
+  let after = "";
+  const bqMatch = section.html.match(/<blockquote>([\s\S]*?)<\/blockquote>/);
+  if (bqMatch) {
+    const start = section.html.indexOf(bqMatch[0]);
+    before = section.html.slice(0, start).trim();
+    after = section.html.slice(start + bqMatch[0].length).trim();
+    for (const p of [...bqMatch[1].matchAll(/<p>([\s\S]*?)<\/p>/g)]) {
+      const m = p[1].match(SLOT_RE);
+      if (m) slots.push({ signal: m[1].trim(), author: m[2].trim() });
+    }
+  }
+  return { ...section, before, after, slots, eyebrow: kickers[i] ?? String(i + 1).padStart(2, "0") };
+});
+
+const schema = [breadcrumbNode(crumbsForSchema(page.data.breadcrumbs))];
 ---
 
-<Base title={`Reviews | ${DISPLAY_NAME}`}>
-  <main>
-    <h1>Reviews</h1>
-    <p>[CONTENT: testimonials — pending content agent]</p>
+<Base title={page.title} description={page.description} schema={schema}>
+  <Header />
+  <main id="main">
+    <div class="crumb-band">
+      <div class="container-wide">
+        <Breadcrumbs items={crumbsForNav(page.data.breadcrumbs)} />
+      </div>
+    </div>
+
+    <Hero variant="service" tone="bone" eyebrow="Real Google reviews only" title={page.h1 ?? "Reviews"} phone={true}>
+      <div class="lede-stack" set:html={page.introHtml} />
+    </Hero>
+
+    <TrustStrip tone="bone" />
+
+    {
+      sections.map((section, i) => (
+        <Section
+          eyebrow={section.eyebrow}
+          title={section.title}
+          tone={i % 2 === 1 ? "sand" : "bone"}
+          id={slugify(section.title)}
+        >
+          {section.before && (
+            <div class="reveal section-intro">
+              <Prose html={section.before} />
+            </div>
+          )}
+          <div class="reviews-grid">
+            {section.slots.map((slot) => (
+              <div class="reveal">
+                <ReviewExcerpt
+                  quote={`[REVIEW — verify against GBP before launch: paste verbatim quote — job signal: ${slot.signal}]`}
+                  author={slot.author}
+                />
+              </div>
+            ))}
+          </div>
+          {section.after && (
+            <div class="reveal section-outro">
+              <Prose html={section.after} />
+            </div>
+          )}
+        </Section>
+      ))
+    }
+
+    <CTABand title={resolveFacts(page.data.cta?.primary ?? "Get a free estimate")} />
   </main>
+  <Footer />
+  <StickyCallBar />
 </Base>
+
+<style>
+  .crumb-band {
+    padding-top: var(--space-5);
+  }
+  :global(.lede-stack p + p) {
+    margin-top: var(--space-4);
+  }
+  .section-intro {
+    margin-bottom: var(--space-6);
+  }
+  .section-outro {
+    margin-top: var(--space-6);
+  }
+  .reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-6) var(--space-7);
+  }
+  @media (max-width: 767px) {
+    .reviews-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-5);
+    }
+  }
+</style>

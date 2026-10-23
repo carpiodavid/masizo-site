@@ -1,19 +1,32 @@
 ---
 /**
- * ROUTE STUB — scaffold agent. Content agent owns everything inside <Base>.
- * Fill: copy (~3,300+ words parity bar), FAQ section, hand-written meta
- * description, and schema nodes via schema-nodes.ts
- * (serviceNode + breadcrumbNode + faqNode — see handoff §5).
+ * /services/commercial — built from content/pages/services/commercial.md.
+ * Rebuilt legacy page (handoff §5). Carries the emergency (clay) hero tone:
+ * cta.emergency is true — commercial properties get the 24-hour line too.
  */
-import Base from "../../layouts/Base.astro";
-import { SERVICES, DISPLAY_NAME } from "../../data/business";
-
-const service = SERVICES.find((s) => s.slug === "commercial")!;
+import ServicePage from "../../components/ServicePage.astro";
 ---
 
-<Base title={`${service.name} | ${DISPLAY_NAME}`}>
-  <main>
-    <h1>{service.name}</h1>
-    <p>[CONTENT: services/commercial — pending content agent]</p>
-  </main>
-</Base>
+<ServicePage
+  contentFile="services/commercial.md"
+  serviceSlug="commercial"
+  hero={{
+    tone: "clay",
+    eyebrow: "Commercial GC · 24-hour response",
+  }}
+  sections={[
+    { eyebrow: "Commercial GC", tone: "bone" },
+    { eyebrow: "Tenant improvement", tone: "sand" },
+    { eyebrow: "Office remodels", tone: "bone" },
+    { eyebrow: "Emergency response", tone: "sand" },
+    { eyebrow: "One contractor", tone: "bone" },
+    { eyebrow: "Pricing prep", tone: "sand" },
+    { eyebrow: "Credentials", tone: "agave" },
+  ]}
+  faqTitle="Commercial questions, answered."
+  cta={{
+    eyebrow: "Commercial projects & emergencies",
+    secondaryHref: "/services/restoration",
+    secondaryLabel: "24-hour emergency restoration",
+  }}
+/>

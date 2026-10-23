@@ -1,17 +1,123 @@
 ---
 /**
- * ROUTE STUB — scaffold agent. Guide #1: Arizona ADU law (HB 2720).
- * Their best AI-search asset (handoff §5) — content agent rewrites it fresh
- * (parity bar ~4,184 words). Schema: articleNode(...) + faqNode(...) +
- * breadcrumbNode(...) from schema-nodes.ts; pass ogType="article".
+ * /guides/arizona-adu-law — built from content/pages/guides/arizona-adu-law.md.
+ * The flagship AI-search asset: every inline statute/city citation link and
+ * every table from the source .md is preserved; the "Last reviewed" date and
+ * the not-legal-advice note render in the opening (and the closing reminder
+ * in Sources). Schema: Article + BreadcrumbList + FAQPage; ogType article.
  */
 import Base from "../../layouts/Base.astro";
-import { DISPLAY_NAME } from "../../data/business";
+import Header from "../../components/ui/Header.astro";
+import Footer from "../../components/ui/Footer.astro";
+import Hero from "../../components/ui/Hero.astro";
+import Section from "../../components/ui/Section.astro";
+import TrustStrip from "../../components/ui/TrustStrip.astro";
+import FAQ from "../../components/ui/FAQ.astro";
+import CTABand from "../../components/ui/CTABand.astro";
+import StickyCallBar from "../../components/ui/StickyCallBar.astro";
+import Breadcrumbs from "../../components/ui/Breadcrumbs.astro";
+import Prose from "../../components/Prose.astro";
+import { articleNode, breadcrumbNode, faqNode } from "../../components/schema-nodes";
+import { crumbsForNav, crumbsForSchema, loadPage, slugify } from "../../lib/content";
+import { resolveFacts } from "../../lib/facts";
+
+const page = loadPage("guides/arizona-adu-law.md");
+const article = page.data.article;
+if (!article) throw new Error("guide: frontmatter is missing the article block");
+
+const schema = [
+  articleNode({
+    headline: article.headline,
+    path: page.data.slug,
+    datePublished: article.datePublished,
+    dateModified: article.dateModified,
+    description: page.description,
+  }),
+  breadcrumbNode(crumbsForSchema(page.data.breadcrumbs)),
+  faqNode(page.faqItems.map((f) => ({ question: f.q, answerHtml: f.answerHtml }))),
+];
+
+// Kickers + layout per section, in document order.
+const meta: { eyebrow: string; tone?: "bone" | "sand" | "agave"; wide?: boolean }[] = [
+  { eyebrow: "The quick answers", tone: "sand", wide: true }, // The Short Version
+  { eyebrow: "HB 2720" }, // What Is Arizona's ADU Law?
+  { eyebrow: "Definitions", tone: "sand" }, // What Counts as an ADU?
+  { eyebrow: "City coverage", wide: true }, // Which Arizona Cities…
+  { eyebrow: "Unit counts", tone: "sand" }, // How Many ADUs…
+  { eyebrow: "Size limits", wide: true }, // How Big…
+  { eyebrow: "What cities can't require", tone: "sand" }, // What Can't My City Require?
+  { eyebrow: "Rentals" }, // Can I Rent Out My ADU?
+  { eyebrow: "Still applies", tone: "sand" }, // What Rules Still Apply?
+  { eyebrow: "Lot check", tone: "agave" }, // Is My Lot Eligible?
+  { eyebrow: "Working with us", tone: "sand" }, // How Masizo Fits In
+  { eyebrow: "Primary sources" }, // Sources
+];
 ---
 
-<Base title={`Arizona ADU Law HB 2720 | ${DISPLAY_NAME}`} ogType="article">
-  <main>
-    <h1>Arizona ADU Law (HB 2720)</h1>
-    <p>[CONTENT: guides/arizona-adu-law — pending content agent]</p>
+<Base title={page.title} description={page.description} ogType="article" schema={schema}>
+  <Header />
+  <main id="main">
+    <div class="crumb-band">
+      <div class="container-wide">
+        <Breadcrumbs items={crumbsForNav(page.data.breadcrumbs)} />
+      </div>
+    </div>
+
+    <article>
+      <Hero variant="service" tone="bone" eyebrow="Guide · Arizona ADU law" phone={false}>
+        <h1 slot="heading" class="guide-h1">{resolveFacts(article.headline)}</h1>
+        <div class="lede-stack" set:html={page.introHtml} />
+        <a slot="actions" class="btn btn-clay" href="/contact">Get a free lot consultation</a>
+        <a slot="actions" class="link-arrow" href="/services/adu-construction">
+          Our ADU construction service
+          <svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"
+            ><path d="M3 10h13M11 4.5 16.5 10 11 15.5"></path></svg
+          >
+        </a>
+      </Hero>
+
+      <TrustStrip tone="bone" />
+
+      {
+        page.sections.map((section, i) => {
+          const m = meta[i] ?? { eyebrow: String(i + 1).padStart(2, "0") };
+          return (
+            <Section eyebrow={m.eyebrow} title={section.title} tone={m.tone ?? "bone"} id={slugify(section.title)}>
+              <div class="reveal">
+                <Prose html={section.html} wide={m.wide} />
+              </div>
+            </Section>
+          );
+        })
+      }
+
+      <Section eyebrow="Good to know" title="Arizona ADU law, question by question." tone="sand">
+        <div class="faq-wrap reveal">
+          <FAQ items={page.faqItems.map((f) => ({ q: f.q, answerHtml: f.answerHtml }))} openFirst />
+        </div>
+      </Section>
+    </article>
+
+    <CTABand title={resolveFacts(page.data.cta?.primary ?? "Get a free lot consultation")} />
   </main>
+  <Footer />
+  <StickyCallBar />
 </Base>
+
+<style>
+  .crumb-band {
+    padding-top: var(--space-5);
+  }
+  .guide-h1 {
+    margin-top: var(--space-4);
+    font-size: var(--text-4xl);
+    line-height: var(--leading-tight);
+    max-width: 24ch;
+  }
+  :global(.lede-stack p + p) {
+    margin-top: var(--space-4);
+  }
+  .faq-wrap {
+    max-width: 50rem;
+  }
+</style>

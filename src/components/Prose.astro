@@ -1,0 +1,99 @@
+---
+/**
+ * Prose — typographic wrapper for HTML rendered from content/pages markdown
+ * (assembly agent). Styles only what the content markdown produces:
+ * paragraphs, bold/italic, links, lists, h3/h4, blockquotes, tables, hr.
+ * Colors inherit from the surrounding Section tone (works on dark bands too).
+ */
+interface Props {
+  html: string;
+  /** Wider measure for table-heavy content (the ADU law guide). */
+  wide?: boolean;
+  class?: string;
+}
+const { html, wide = false, class: className = "" } = Astro.props;
+---
+
+<div class:list={["prose", { "prose-wide": wide }, className]} set:html={html} />
+
+<style is:global>
+  .prose {
+    max-width: 70ch;
+  }
+  .prose-wide {
+    max-width: none;
+  }
+  .prose > * + * {
+    margin-top: var(--space-4);
+  }
+  .prose p {
+    color: inherit;
+  }
+  .prose > h3 {
+    margin-top: var(--space-6);
+    font-size: var(--text-xl);
+  }
+  .prose > h4 {
+    margin-top: var(--space-5);
+    font-size: var(--text-md);
+  }
+  .prose ul,
+  .prose ol {
+    padding-left: 1.4em;
+    display: grid;
+    gap: var(--space-3);
+  }
+  .prose ol li::marker {
+    font-weight: 650;
+    color: var(--c-clay-deep);
+  }
+  .on-dark .prose ol li::marker {
+    color: var(--c-accent-on-dark);
+  }
+  .prose ul li::marker {
+    color: var(--c-clay);
+  }
+  .prose blockquote {
+    padding: var(--space-4) 0 var(--space-4) var(--space-5);
+    border-left: 2px solid var(--c-clay);
+  }
+  .prose blockquote p + p {
+    margin-top: var(--space-3);
+  }
+  .prose hr {
+    border: 0;
+    border-top: 1px solid var(--c-line);
+    margin-block: var(--space-6);
+  }
+  .prose .table-wrap {
+    overflow-x: auto;
+    margin-top: var(--space-5);
+    border: 1px solid var(--c-line);
+    border-radius: var(--radius-sm);
+  }
+  .prose table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+    line-height: 1.5;
+  }
+  .prose th,
+  .prose td {
+    padding: 0.7rem 0.9rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--c-line);
+  }
+  .prose thead th {
+    font-family: var(--font-text);
+    font-size: var(--text-xs);
+    font-weight: 650;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--c-ink-soft);
+    background: var(--c-sand);
+  }
+  .prose tbody tr:last-child td {
+    border-bottom: 0;
+  }
+</style>

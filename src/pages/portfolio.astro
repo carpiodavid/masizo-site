@@ -1,16 +1,126 @@
 ---
 /**
- * ROUTE STUB — scaffold agent. Portfolio (/portfolio).
- * Only owner-supplied photos may ship (handoff §3/§7) — until delivered,
- * clearly marked placeholders.
+ * /portfolio — built from content/pages/portfolio.md.
+ * LAUNCH GATE: every photo slot is an owner-photo placeholder (handoff §7) —
+ * each [PHOTO: …] line in the .md renders as a clearly-marked
+ * <PhotoPlaceholder/>, swapped in place when the owner library arrives.
  */
 import Base from "../layouts/Base.astro";
-import { DISPLAY_NAME } from "../data/business";
+import Header from "../components/ui/Header.astro";
+import Footer from "../components/ui/Footer.astro";
+import Hero from "../components/ui/Hero.astro";
+import Section from "../components/ui/Section.astro";
+import TrustStrip from "../components/ui/TrustStrip.astro";
+import CTABand from "../components/ui/CTABand.astro";
+import StickyCallBar from "../components/ui/StickyCallBar.astro";
+import Breadcrumbs from "../components/ui/Breadcrumbs.astro";
+import PhotoPlaceholder from "../components/ui/PhotoPlaceholder.astro";
+import Prose from "../components/Prose.astro";
+import { breadcrumbNode } from "../components/schema-nodes";
+import { crumbsForNav, crumbsForSchema, loadPage, slugify } from "../lib/content";
+import { resolveFacts } from "../lib/facts";
+
+const page = loadPage("portfolio.md");
+
+const kickers = ["Kitchens", "Bathrooms", "Whole homes", "ADUs & casitas", "Exterior & roofing", "Restoration"];
+const tones = ["clay", "agave", "stone", "sand"] as const;
+const ratios = ["4/3", "3/4", "4/3"] as const;
+
+// Split each section's html at the point where its photos sat (between the
+// section paragraph and any closing hr/copy), so order is preserved.
+const sections = page.sections.map((section, i) => {
+  const firstParaEnd = section.html.indexOf("</p>");
+  const lead = firstParaEnd === -1 ? section.html : section.html.slice(0, firstParaEnd + 4);
+  const rest = firstParaEnd === -1 ? "" : section.html.slice(firstParaEnd + 4).trim();
+  return { ...section, lead, rest, eyebrow: kickers[i] ?? String(i + 1).padStart(2, "0") };
+});
+
+const schema = [breadcrumbNode(crumbsForSchema(page.data.breadcrumbs))];
 ---
 
-<Base title={`Our Work | ${DISPLAY_NAME}`}>
-  <main>
-    <h1>Our Work</h1>
-    <p>[CONTENT: portfolio — pending content agent]</p>
+<Base title={page.title} description={page.description} schema={schema}>
+  <Header />
+  <main id="main">
+    <div class="crumb-band">
+      <div class="container-wide">
+        <Breadcrumbs items={crumbsForNav(page.data.breadcrumbs)} />
+      </div>
+    </div>
+
+    <Hero variant="service" tone="bone" eyebrow="Real projects, real captions" title={page.h1 ?? "Our Work"} phone={true}>
+      <div class="lede-stack" set:html={page.introHtml} />
+    </Hero>
+
+    <TrustStrip tone="bone" />
+
+    {
+      sections.map((section, i) => (
+        <Section
+          eyebrow={section.eyebrow}
+          title={section.title}
+          tone={i % 2 === 1 ? "sand" : "bone"}
+          id={slugify(section.title)}
+          wide
+        >
+          <div class="reveal">
+            <Prose html={section.lead} />
+          </div>
+          {section.photos.length > 0 && (
+            <div class:list={["work-grid", `cols-${Math.min(section.photos.length, 3)}`]}>
+              {section.photos.map((label, pi) => (
+                <PhotoPlaceholder
+                  label={label}
+                  ratio={ratios[pi % ratios.length]}
+                  tone={tones[(i + pi) % tones.length]}
+                  class="reveal"
+                />
+              ))}
+            </div>
+          )}
+          {section.rest && (
+            <div class="reveal section-rest">
+              <Prose html={section.rest} />
+            </div>
+          )}
+        </Section>
+      ))
+    }
+
+    <CTABand title={resolveFacts(page.data.cta?.primary ?? "Get a free estimate")} />
   </main>
+  <Footer />
+  <StickyCallBar />
 </Base>
+
+<style>
+  .crumb-band {
+    padding-top: var(--space-5);
+  }
+  :global(.lede-stack p + p) {
+    margin-top: var(--space-4);
+  }
+  .work-grid {
+    display: grid;
+    gap: var(--space-4);
+    align-items: end;
+    margin-top: var(--space-6);
+  }
+  .work-grid.cols-3 {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 3fr) minmax(0, 4fr);
+  }
+  .work-grid.cols-2 {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 4fr);
+  }
+  .work-grid.cols-1 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .section-rest {
+    margin-top: var(--space-6);
+  }
+  @media (max-width: 767px) {
+    .work-grid.cols-3,
+    .work-grid.cols-2 {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

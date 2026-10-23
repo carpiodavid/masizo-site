@@ -1,16 +1,65 @@
 ---
 /**
- * ROUTE STUB — scaffold agent. Thank-you page — the conversion event target
- * (handoff §5 lead machine #4). The contact form redirects here on success.
- * noindex: it must never rank or be landed on organically.
+ * /thank-you — conversion target the lead form redirects to (noindex, kept
+ * out of the sitemap by astro.config). Short confirmation + the phone number.
  */
 import Base from "../layouts/Base.astro";
-import { DISPLAY_NAME } from "../data/business";
+import Header from "../components/ui/Header.astro";
+import Footer from "../components/ui/Footer.astro";
+import Section from "../components/ui/Section.astro";
+import StickyCallBar from "../components/ui/StickyCallBar.astro";
+import { DISPLAY_NAME, PHONE_DISPLAY, PHONE_TEL } from "../data/business";
 ---
 
 <Base title={`Thank You | ${DISPLAY_NAME}`} noindex>
-  <main>
-    <h1>Thank You</h1>
-    <p>[CONTENT: thank-you — pending content agent]</p>
+  <Header />
+  <main id="main">
+    <Section eyebrow="Message received" title="Thank you — we have your details.">
+      <div class="ty-copy reveal">
+        <p>
+          A real person from our team reads every submission and will call you back to talk
+          scope, timeline, and next steps — usually to set up your free on-site consultation.
+        </p>
+        <p>
+          Need us sooner, or is this an emergency? Call
+          <a href={PHONE_TEL}>{PHONE_DISPLAY}</a> — the line is answered around the clock.
+        </p>
+        <p class="ty-links">
+          <a class="link-arrow" href="/portfolio">
+            Browse our work
+            <svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"
+              ><path d="M3 10h13M11 4.5 16.5 10 11 15.5"></path></svg
+            >
+          </a>
+          <a class="link-arrow" href="/guides/arizona-adu-law">
+            Read the Arizona ADU law guide
+            <svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"
+              ><path d="M3 10h13M11 4.5 16.5 10 11 15.5"></path></svg
+            >
+          </a>
+        </p>
+      </div>
+    </Section>
   </main>
+  <Footer />
+  <StickyCallBar />
 </Base>
+
+<style>
+  .ty-copy {
+    max-width: 60ch;
+  }
+  .ty-copy p + p {
+    margin-top: var(--space-4);
+  }
+  .ty-copy p {
+    color: var(--c-ink-soft);
+    font-size: var(--text-lg);
+  }
+  .ty-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4) var(--space-6);
+    margin-top: var(--space-6);
+  }
+</style>

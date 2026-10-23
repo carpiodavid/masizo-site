@@ -1,25 +1,140 @@
 ---
 /**
- * ROUTE STUB — scaffold agent. Service-areas hub (/service-areas).
- * Lists all 10 cities as plain text; links a city ONLY when its gated page
- * exists (hasPhoto — the no-photo-no-page rule, handoff §5/§6.3).
+ * /service-areas — built from content/pages/service-areas/index.md.
+ * Cities render as plain-text entries (not links) until their gated city
+ * pages pass the no-photo-no-page rule (hasPhoto in business.ts); a city
+ * with a live page gets linked automatically.
  */
 import Base from "../../layouts/Base.astro";
-import { CITIES, DISPLAY_NAME } from "../../data/business";
+import Header from "../../components/ui/Header.astro";
+import Footer from "../../components/ui/Footer.astro";
+import Hero from "../../components/ui/Hero.astro";
+import Section from "../../components/ui/Section.astro";
+import TrustStrip from "../../components/ui/TrustStrip.astro";
+import FAQ from "../../components/ui/FAQ.astro";
+import CTABand from "../../components/ui/CTABand.astro";
+import StickyCallBar from "../../components/ui/StickyCallBar.astro";
+import Breadcrumbs from "../../components/ui/Breadcrumbs.astro";
+import Prose from "../../components/Prose.astro";
+import { CITIES } from "../../data/business";
+import { breadcrumbNode, faqNode } from "../../components/schema-nodes";
+import { crumbsForNav, crumbsForSchema, loadPage } from "../../lib/content";
+import { resolveFacts } from "../../lib/facts";
+
+const page = loadPage("service-areas/index.md");
+
+const [citiesSec, closingSec] = page.sections;
+
+// "Cities We Serve" is a run of <h3>City</h3><p>…</p> pairs.
+interface CityEntry {
+  name: string;
+  html: string;
+  href?: string;
+}
+const cityEntries: CityEntry[] = [...citiesSec.html.matchAll(/<h3>([\s\S]*?)<\/h3>\s*((?:<p>[\s\S]*?<\/p>\s*)+)/g)].map(
+  (m) => {
+    const name = m[1].trim();
+    const city = CITIES.find((c) => c.name === name);
+    return {
+      name,
+      html: m[2],
+      href: city?.hasPhoto ? `/service-areas/${city.slug}` : undefined,
+    };
+  }
+);
+
+const schema = [
+  breadcrumbNode(crumbsForSchema(page.data.breadcrumbs)),
+  faqNode(page.faqItems.map((f) => ({ question: f.q, answerHtml: f.answerHtml }))),
+];
 ---
 
-<Base title={`Service Areas | ${DISPLAY_NAME}`}>
-  <main>
-    <h1>Service Areas</h1>
-    <p>[CONTENT: service-areas — pending content agent]</p>
-    <ul>
-      {CITIES.map((city) =>
-        city.hasPhoto ? (
-          <li><a href={`/service-areas/${city.slug}`}>{city.name}</a></li>
-        ) : (
-          <li>{city.name}</li>
-        )
-      )}
-    </ul>
+<Base title={page.title} description={page.description} schema={schema}>
+  <Header />
+  <main id="main">
+    <div class="crumb-band">
+      <div class="container-wide">
+        <Breadcrumbs items={crumbsForNav(page.data.breadcrumbs)} />
+      </div>
+    </div>
+
+    <Hero variant="service" tone="bone" eyebrow="East Valley · Phoenix metro" title="Service Areas in the Phoenix Valley" phone={true}>
+      <div class="lede-stack" set:html={page.introHtml} />
+    </Hero>
+
+    <TrustStrip tone="bone" />
+
+    <Section eyebrow="Our map" title={citiesSec.title}>
+      <ul class="city-grid">
+        {
+          cityEntries.map((city) => (
+            <li class="city-item reveal">
+              <h3 class="city-name">{city.href ? <a href={city.href}>{city.name}</a> : city.name}</h3>
+              <div class="city-copy" set:html={city.html} />
+            </li>
+          ))
+        }
+      </ul>
+    </Section>
+
+    {
+      closingSec && (
+        <Section eyebrow="One number" title={closingSec.title} tone="agave">
+          <div class="reveal">
+            <Prose html={closingSec.html} />
+          </div>
+        </Section>
+      )
+    }
+
+    <Section eyebrow="Good to know" title="Service-area questions, answered." tone="sand">
+      <div class="faq-wrap reveal">
+        <FAQ items={page.faqItems.map((f) => ({ q: f.q, answerHtml: f.answerHtml }))} openFirst />
+      </div>
+    </Section>
+
+    <CTABand title={resolveFacts(page.data.cta?.primary ?? "Get a free estimate")} />
   </main>
+  <Footer />
+  <StickyCallBar />
 </Base>
+
+<style>
+  .crumb-band {
+    padding-top: var(--space-5);
+  }
+  :global(.lede-stack p + p) {
+    margin-top: var(--space-4);
+  }
+  .city-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-6) var(--space-8);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .city-item {
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--c-line);
+  }
+  .city-name {
+    font-size: var(--text-xl);
+  }
+  .city-copy {
+    margin-top: var(--space-3);
+    color: var(--c-ink-soft);
+    max-width: 52ch;
+  }
+  .city-copy :global(p + p) {
+    margin-top: var(--space-3);
+  }
+  .faq-wrap {
+    max-width: 50rem;
+  }
+  @media (max-width: 767px) {
+    .city-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

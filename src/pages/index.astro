@@ -1,16 +1,565 @@
 ---
 /**
- * ROUTE STUB — scaffold agent. Homepage.
- * Content agent: copy + FAQ + meta description; schema: add faqNode(...)
- * (live homepage carries FAQPage, handoff §3). Design agent: layout/comps.
+ * Homepage — THE DECISION (user-approved): comp A "High Desert Editorial"
+ * as the base, folding in from comp B: the 4-cell stat ledger under the hero
+ * and the scope-bullet treatment on the service index rows.
+ *
+ * All copy comes from content/pages/home.md at build time (its copy wins);
+ * [PHOTO]/[REVIEW] placeholders are launch-gated and clearly marked.
  */
 import Base from "../layouts/Base.astro";
-import { DISPLAY_NAME } from "../data/business";
+import Header from "../components/ui/Header.astro";
+import Footer from "../components/ui/Footer.astro";
+import Hero from "../components/ui/Hero.astro";
+import Section from "../components/ui/Section.astro";
+import TrustStrip from "../components/ui/TrustStrip.astro";
+import FAQ from "../components/ui/FAQ.astro";
+import ReviewExcerpt from "../components/ui/ReviewExcerpt.astro";
+import CTABand from "../components/ui/CTABand.astro";
+import StickyCallBar from "../components/ui/StickyCallBar.astro";
+import PhotoPlaceholder from "../components/ui/PhotoPlaceholder.astro";
+import Prose from "../components/Prose.astro";
+import { CITIES, LICENSES, SERVICES, SINCE_YEAR, YEARS_IN_BUSINESS } from "../data/business";
+import { faqNode } from "../components/schema-nodes";
+import { loadPage } from "../lib/content";
+import { resolveFacts } from "../lib/facts";
+
+const page = loadPage("home.md");
+
+/* ---- hero -------------------------------------------------------------- */
+// H1 from home.md, with the comp-A italic-clay emphasis on the key phrase.
+const h1Html = (page.h1 ?? "").replace(
+  /One Gilbert Contractor/,
+  "<em>One Gilbert Contractor</em>"
+);
+// Lede = the intro paragraph; the md's CTA line contributes its emergency note
+// (the buttons it lists are rendered as hero actions instead).
+const introParagraphs = [...page.introHtml.matchAll(/<p>([\s\S]*?)<\/p>/g)].map((m) => m[1]);
+const ledeHtml = `<p>${introParagraphs[0] ?? ""}</p>`;
+const emergencyNoteHtml = (introParagraphs[1] ?? "").match(/<em>([\s\S]*?)<\/em>/)?.[1] ?? "";
+
+/* ---- comp-B fold #1: the 4-cell stat ledger ----------------------------- */
+const ledger = [
+  { n: String(YEARS_IN_BUSINESS), unit: "yrs", label: `Building Arizona since ${SINCE_YEAR}` },
+  { n: String(LICENSES.length), unit: "lic", label: "AZ ROC ×2 + CA CSLB" },
+  { n: String(CITIES.length), unit: "cities", label: "East Valley & Phoenix metro" },
+  { n: "24/7", unit: "", label: "Restoration response, every day" },
+];
+
+/* ---- comp-B fold #2: scope bullets on the service rows ------------------ */
+const scope: Record<string, string[]> = {
+  "custom-homes": ["Design-to-build", "Permits & inspections", "Finish carpentry"],
+  "home-remodeling": ["Structural changes", "Layout & systems", "Full finish"],
+  "kitchen-remodeling": ["Cabinetry & counters", "Electrical", "Lighting & tile"],
+  "bathroom-remodeling": ["Showers & tubs", "Tile & vanities", "Plumbing & vent"],
+  "room-additions": ["Foundations", "Framing & roof tie-in", "HVAC & finish"],
+  "adu-construction": ["Zoning & permits", "Detached or attached", "Interior buildout"],
+  "roofing": ["Replacement", "Tile, shingle & flat", "Leak repair"],
+  "restoration": ["Water & flood", "Mold remediation", "Fire & smoke"],
+  "commercial": ["Commercial GC", "Tenant improvement", "Emergency response"],
+};
+
+/* ---- service groups from home.md's three H2s ---------------------------- */
+// home.md entry format: **[Name](path)** — blurb…
+interface HomeRow {
+  index: string;
+  title: string;
+  href: string;
+  blurbHtml: string;
+  bullets: string[];
+  emergency: boolean;
+}
+let rowIndex = 0;
+function parseRows(html: string): HomeRow[] {
+  return [...html.matchAll(/<p><strong><a href="([^"]+)">([^<]+)<\/a><\/strong>\s*—\s*([\s\S]*?)<\/p>/g)].map(
+    (m) => {
+      rowIndex += 1;
+      const href = m[1];
+      const slug = href.split("/").pop() ?? "";
+      return {
+        index: String(rowIndex).padStart(2, "0"),
+        title: m[2],
+        href,
+        blurbHtml: m[3],
+        bullets: scope[slug] ?? [],
+        emergency: SERVICES.find((s) => s.slug === slug)?.emergency ?? false,
+      };
+    }
+  );
+}
+
+const [aboutSec, buildSec, remodelSec, protectSec, processSec, whySec, whereSec] = page.sections;
+const groups = [
+  { eyebrow: "Build", title: buildSec.title, rows: parseRows(buildSec.html) },
+  { eyebrow: "Remodel", title: remodelSec.title, rows: parseRows(remodelSec.html) },
+  { eyebrow: "Protect", title: protectSec.title, rows: parseRows(protectSec.html) },
+];
+
+/* ---- process steps (md: **1 — Title.** body) ----------------------------- */
+const steps = [...processSec.html.matchAll(/<p><strong>(\d+)\s*—\s*([\s\S]*?)<\/strong>\s*([\s\S]*?)<\/p>/g)].map(
+  (m) => ({ n: m[1].padStart(2, "0"), title: m[2].replace(/\.\s*$/, ""), body: m[3] })
+);
+
+/* ---- "why" bullets (md: - **Title.** body) ------------------------------- */
+const whyItems = [...whySec.html.matchAll(/<li><strong>([\s\S]*?)<\/strong>\s*([\s\S]*?)<\/li>/g)].map((m) => ({
+  title: m[1],
+  body: m[2],
+}));
+
+/* ---- where we work: paragraphs around the gallery band ------------------- */
+const whereParagraphs = [...whereSec.html.matchAll(/<p>[\s\S]*?<\/p>/g)].map((m) => m[0]);
+
+/* ---- review excerpt band (launch-gated placeholders, per home.md note:
+        excerpts rotate from the /testimonials inventory; quotes are pasted
+        verbatim from GBP at launch — never invented) ---------------------- */
+const reviewSlots = [
+  { author: "Marina Gamez", signal: "remodel delivered on time in 8 weeks" },
+  { author: "Greg Gallagher", signal: "casita build" },
+  { author: "Monica Duran", signal: "AC-leak restoration, insurance coordination" },
+];
+
+const schema = [faqNode(page.faqItems.map((f) => ({ question: f.q, answerHtml: f.answerHtml })))];
 ---
 
-<Base title={`${DISPLAY_NAME} | Gilbert AZ General Contractor`}>
-  <main>
-    <h1>{DISPLAY_NAME}</h1>
-    <p>[CONTENT: home — pending content agent]</p>
+<Base title={page.title} description={page.description} schema={schema}>
+  <Header />
+  <main id="main">
+    <Hero variant="home" tone="bone" eyebrow={`Gilbert, Arizona · Since ${SINCE_YEAR}`} phone={true}>
+      <h1 slot="heading" class="home-h1" set:html={h1Html} />
+      <div set:html={ledeHtml} />
+      <a slot="actions" class="link-arrow" href="/contact">
+        Get a free estimate
+        <svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"
+          ><path d="M3 10h13M11 4.5 16.5 10 11 15.5"></path></svg
+        >
+      </a>
+      <PhotoPlaceholder
+        slot="media"
+        label="full-bleed, art-directed shot of a completed Masizo project — owner-supplied only"
+        ratio="3/4"
+        tone="clay"
+        class="hero-photo reveal"
+      />
+      <div slot="below">
+        {emergencyNoteHtml && <p class="hero-note" set:html={emergencyNoteHtml} />}
+        <dl class="ledger reveal">
+          {
+            ledger.map((cell) => (
+              <div class="ledger-cell">
+                <dd class="ledger-n tabular">
+                  {cell.n}
+                  {cell.unit && <span class="ledger-unit">{cell.unit}</span>}
+                </dd>
+                <dt class="ledger-label">{cell.label}</dt>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+    </Hero>
+
+    <TrustStrip tone="bone" />
+
+    <Section id="about" eyebrow="Who we are" title={aboutSec.title} tone="sand">
+      <div class="about-grid">
+        <div class="about-copy reveal">
+          <Prose html={aboutSec.html} />
+        </div>
+        <PhotoPlaceholder
+          label="the Masizo crew on a job site — owner-supplied"
+          ratio="3/4"
+          tone="agave"
+          class="about-photo reveal"
+        />
+      </div>
+    </Section>
+
+    {
+      groups.map((group, gi) => (
+        <Section eyebrow={group.eyebrow} title={group.title} tight={gi > 0}>
+          {gi === 0 && (
+            <a slot="action" class="link-arrow" href="/services">
+              All services
+              <svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M3 10h13M11 4.5 16.5 10 11 15.5" />
+              </svg>
+            </a>
+          )}
+          <div class="svc-ledger reveal">
+            {group.rows.map((row) => (
+              <article class:list={["svc-row", { emergency: row.emergency }]}>
+                <span class="svc-index numeral" aria-hidden="true">{row.index}</span>
+                <div class="svc-main">
+                  <h3 class="svc-title">
+                    <a href={row.href}>{row.title}</a>
+                    {row.emergency && <span class="svc-badge">24/7</span>}
+                  </h3>
+                  <p class="svc-blurb" set:html={row.blurbHtml} />
+                  {row.bullets.length > 0 && <p class="svc-bullets">{row.bullets.join("  ·  ")}</p>}
+                </div>
+                <a class="svc-arrow" href={row.href} aria-label={`${row.title} — details`}>
+                  <svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M3 10h13M11 4.5 16.5 10 11 15.5" />
+                  </svg>
+                </a>
+              </article>
+            ))}
+          </div>
+        </Section>
+      ))
+    }
+
+    <Section eyebrow="How it works" title={processSec.title} tone="agave">
+      <ol class="process">
+        {
+          steps.map((step) => (
+            <li class="process-step reveal">
+              <span class="process-n numeral" aria-hidden="true">{step.n}</span>
+              <h3 class="process-t" set:html={step.title} />
+              <p class="process-d" set:html={step.body} />
+            </li>
+          ))
+        }
+      </ol>
+    </Section>
+
+    <Hero variant="emergency" tone="clay" eyebrow="24/7 restoration" title="Water, fire, or mold? Call now.">
+      {emergencyNoteHtml && <p set:html={emergencyNoteHtml} />}
+      <a slot="actions" class="link-arrow" href="/services/restoration">
+        How restoration works
+        <svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"
+          ><path d="M3 10h13M11 4.5 16.5 10 11 15.5"></path></svg
+        >
+      </a>
+    </Hero>
+
+    <Section eyebrow="Why Masizo" title={whySec.title} tone="sand">
+      <ul class="why-grid">
+        {
+          whyItems.map((item) => (
+            <li class="why-item reveal">
+              <h3 class="why-t" set:html={item.title} />
+              <p class="why-d" set:html={item.body} />
+            </li>
+          ))
+        }
+      </ul>
+    </Section>
+
+    <Section eyebrow="In their words" title="Neighbors who called us first.">
+      <a slot="action" class="link-arrow" href="/testimonials">
+        All reviews
+        <svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"
+          ><path d="M3 10h13M11 4.5 16.5 10 11 15.5"></path></svg
+        >
+      </a>
+      <div class="reviews-grid">
+        {
+          reviewSlots.map((slot) => (
+            <div class="reveal">
+              <ReviewExcerpt
+                quote={`[REVIEW — verify against GBP before launch: paste verbatim quote — job signal: ${slot.signal}]`}
+                author={slot.author}
+              />
+            </div>
+          ))
+        }
+      </div>
+    </Section>
+
+    <Section eyebrow="Good to know" title="Questions homeowners ask." tone="sand">
+      <div class="faq-wrap reveal">
+        <FAQ items={page.faqItems.map((f) => ({ q: f.q, answerHtml: f.answerHtml }))} openFirst />
+      </div>
+    </Section>
+
+    <Section eyebrow="Service area" title={whereSec.title} wide>
+      {whereParagraphs[0] && <div class="where-copy reveal" set:html={whereParagraphs[0]} />}
+      <div class="gallery-grid">
+        <PhotoPlaceholder label="project gallery — completed kitchen remodel (owner-supplied)" ratio="4/3" tone="clay" class="reveal" />
+        <PhotoPlaceholder label="project gallery — detached casita exterior (owner-supplied)" ratio="3/4" tone="agave" class="reveal" />
+        <PhotoPlaceholder label="project gallery — tile roof replacement (owner-supplied)" ratio="4/3" tone="stone" class="reveal" />
+        <PhotoPlaceholder label="project gallery — finished bathroom (owner-supplied)" ratio="3/4" tone="sand" class="reveal" />
+      </div>
+      {whereParagraphs[1] && <div class="where-copy where-close reveal" set:html={whereParagraphs[1]} />}
+    </Section>
+
+    <CTABand title={resolveFacts(page.data.cta?.primary ?? "Get a free estimate")} />
   </main>
+  <Footer />
+  <StickyCallBar />
 </Base>
+
+<style>
+  /* ---- hero ---- */
+  .home-h1 {
+    margin-top: var(--space-4);
+    font-size: var(--text-5xl);
+    line-height: var(--leading-tight);
+    max-width: 16ch;
+  }
+  .home-h1 :global(em) {
+    font-style: italic;
+    font-weight: 440;
+    color: var(--c-clay-deep);
+  }
+  :global(.hero-photo) {
+    max-width: 26rem;
+    margin-left: auto;
+  }
+  @media (max-width: 899px) {
+    :global(.hero-photo) {
+      max-width: 100%;
+      aspect-ratio: 16 / 10 !important;
+      margin-left: 0;
+    }
+  }
+  .hero-note {
+    font-style: italic;
+    color: var(--c-ink-soft);
+    margin-bottom: var(--space-5);
+    max-width: 60ch;
+  }
+
+  /* ---- comp-B stat ledger, restyled for the bone ground ---- */
+  .ledger {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-5);
+    margin: 0;
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--c-line);
+  }
+  .ledger-n {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 440;
+    line-height: 1;
+    color: var(--c-ink);
+  }
+  .ledger-unit {
+    font-size: 0.45em;
+    font-family: var(--font-text);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--c-clay-deep);
+    margin-left: 0.3em;
+  }
+  .ledger-label {
+    margin-top: var(--space-2);
+    font-size: var(--text-xs);
+    font-weight: 560;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--c-ink-soft);
+  }
+  @media (max-width: 767px) {
+    .ledger {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* ---- about ---- */
+  .about-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: var(--space-6) var(--space-8);
+    align-items: start;
+  }
+  .about-copy :global(.prose) {
+    font-size: var(--text-lg);
+    color: var(--c-ink-soft);
+  }
+  :global(.about-photo) {
+    max-width: 24rem;
+    margin-left: auto;
+  }
+  @media (max-width: 767px) {
+    .about-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    :global(.about-photo) {
+      max-width: 100%;
+      aspect-ratio: 16 / 10 !important;
+      margin-left: 0;
+    }
+  }
+
+  /* ---- service ledger rows (comp-A row + comp-B scope bullets) ---- */
+  .svc-ledger {
+    border-top: 1px solid var(--c-line);
+  }
+  .svc-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: var(--space-5);
+    padding: var(--space-5) var(--space-2);
+    border-bottom: 1px solid var(--c-line);
+  }
+  .svc-index {
+    font-size: var(--text-xl);
+    min-width: 2.2ch;
+  }
+  .svc-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    font-size: var(--text-2xl);
+    font-weight: 540;
+    letter-spacing: -0.01em;
+    line-height: var(--leading-snug);
+  }
+  .svc-title a {
+    color: var(--c-ink);
+    text-decoration: none;
+  }
+  .svc-title a:hover {
+    color: var(--c-clay-deep);
+  }
+  .svc-badge {
+    font-family: var(--font-text);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 0.25em 0.55em;
+    border-radius: var(--radius-xs);
+    background: var(--c-clay);
+    color: var(--c-bone-on-dark);
+    transform: translateY(-0.2em);
+  }
+  .svc-blurb {
+    margin-top: 0.35rem;
+    font-size: var(--text-base);
+    color: var(--c-ink-soft);
+    max-width: 58ch;
+  }
+  .svc-bullets {
+    margin-top: 0.5rem;
+    font-size: var(--text-xs);
+    font-weight: 560;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--c-clay-deep);
+  }
+  .svc-arrow {
+    align-self: center;
+    color: var(--c-clay);
+    transition: transform 140ms ease;
+  }
+  .svc-arrow svg {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+  .svc-row:hover .svc-arrow {
+    transform: translateX(4px);
+  }
+  @media (max-width: 639px) {
+    .svc-row {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+    .svc-arrow {
+      display: none;
+    }
+  }
+
+  /* ---- process (agave band, comp-A treatment) ---- */
+  .process {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-6);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .process-step {
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--c-line-on-dark);
+  }
+  .process-n {
+    display: block;
+    font-size: var(--text-4xl);
+    color: var(--c-accent-on-dark);
+  }
+  .process-t {
+    margin-top: var(--space-4);
+    font-size: var(--text-xl);
+  }
+  .process-d {
+    margin-top: var(--space-3);
+    font-size: var(--text-base);
+    color: var(--c-mut-on-dark);
+    max-width: 38ch;
+  }
+  @media (max-width: 767px) {
+    .process {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  /* ---- why band ---- */
+  .why-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-6) var(--space-8);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .why-item {
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--c-line);
+  }
+  .why-t {
+    font-size: var(--text-xl);
+  }
+  .why-d {
+    margin-top: var(--space-3);
+    color: var(--c-ink-soft);
+    max-width: 52ch;
+  }
+  @media (max-width: 767px) {
+    .why-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  /* ---- reviews ---- */
+  .reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+  @media (max-width: 899px) {
+    .reviews-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-5);
+    }
+  }
+
+  .faq-wrap {
+    max-width: 50rem;
+  }
+
+  /* ---- where we work ---- */
+  .where-copy :global(p) {
+    max-width: 68ch;
+    color: var(--c-ink-soft);
+  }
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 3fr) minmax(0, 4fr) minmax(0, 3fr);
+    gap: var(--space-4);
+    align-items: end;
+    margin-block: var(--space-6);
+  }
+  .where-close {
+    margin-top: var(--space-5);
+  }
+  @media (max-width: 899px) {
+    .gallery-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>
