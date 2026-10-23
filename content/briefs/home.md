@@ -43,7 +43,7 @@ Recon of https://www.masizodevelopment.com/ — fetched 2026-10-23 with curl (ra
 - [ ] Financing availability (live FAQ claims it — [VERIFY] with owner before shipping)
 - [ ] Insurance claims handled for restoration "at no cost to you" ([VERIFY] wording with owner — it's a legal-ish promise)
 - [ ] Project timeline expectations (bathroom = weeks, custom home = months, set at consult)
-- [ ] Team/owner presence: reviews name Steve (Steven Martinez, President per site schema). Old site named Anthony Ardizzone as president — [VERIFY] who should be named before naming anyone.
+- [ ] Team/owner presence: reviews name Steve (Steven Martinez, President per site schema) — [VERIFY] with owner before naming anyone in copy. (Note: an earlier 'Anthony Ardizzone' reference was cross-contamination from a different client's audit — disregard.)
 
 ## FAQ inventory (live page answers these — paraphrased; rewrite Q&A fresh)
 1. Which cities/areas do they serve? (A: East Valley cities + greater Phoenix metro; CA for select projects)
@@ -64,7 +64,7 @@ Recon of https://www.masizodevelopment.com/ — fetched 2026-10-23 with curl (ra
 | **4.7 stars / 28 Google reviews** | NO — verifiable against GBP (cid 1086874099717890420); re-pull at build |
 | **Financing for qualified clients** | **NO — [VERIFY]** |
 | **Claim help at no cost** | **NO — [VERIFY] exact promise** |
-| **Steven Martinez, President** (in JSON-LD Person + review mentions) | **NO — [VERIFY]; old site said Anthony Ardizzone** |
+| **Steven Martinez, President** (in JSON-LD Person + review mentions) | **NO — [VERIFY] with owner** |
 
 ## Word count target
 Live body ≈ 2,900 words, BUT ~2,150 of that is the sitewide Google-review wall. Unique homepage copy ≈ 750 words. Target: **≥ 3,250 words total** with **≥ 1,100 words unique copy** (hero, about, services grid, process, FAQ) + the real-review block. Equal-or-better ground, more of it actually ours.

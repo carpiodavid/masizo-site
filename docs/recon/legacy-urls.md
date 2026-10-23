@@ -26,7 +26,7 @@ Host/scheme behavior to preserve: http→https and apex→www currently 308; kee
 | # | Path | Live status today (curl) | Evidence it existed | Redirect in new IA |
 |---|---|---|---|---|
 | 1 | `/services/commercial` | **404** | Audit/handoff: still indexed; old title "Commercial – Masizo Development & Restorations" | **No redirect needed — page is REBUILT at the same slug** (see content/briefs/services-commercial.md). Until it ships: 301 → `/services`. |
-| 2 | `/who-we-are/anthony-ardizzone-president` | **404** | Audit/handoff known legacy 404 | 301 → `/` (the only "about" surface is the homepage about section; do NOT point at a person page we don't have). |
+| 2 | ~~`/who-we-are/anthony-ardizzone-president`~~ | — | **REMOVED 2026-10-23: cross-contamination from a different client's audit (ZZONE Construction). Never a Masizo URL — no redirect needed.** | — |
 
 ## Defensive legacy candidates (probed 2026-10-23; all 404 live, none in Wayback)
 
@@ -60,7 +60,6 @@ These are plausible previous-generation paths (the old site was WordPress-style)
 
 ```
 # Known legacy (previous site generation)
-/who-we-are/anthony-ardizzone-president  /   301
 /who-we-are                              /   301
 # /services/commercial — rebuilt at same slug; no rule needed once live
 

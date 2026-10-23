@@ -5,7 +5,6 @@
 # --- Known legacy 404 paths (old-old site generation, handoff §5) ---
 # /services/commercial — resolved by REBUILDING the page (it exists again in
 # this site), so no redirect line is needed for it.
-/who-we-are/anthony-ardizzone-president / 301
 
 # --- RECON AGENT: extend below this line -------------------------------------
 # Add further legacy URLs discovered via Wayback Machine + Search Console here,

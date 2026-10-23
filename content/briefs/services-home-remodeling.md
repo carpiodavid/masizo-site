@@ -8,7 +8,7 @@ Recon of https://www.masizodevelopment.com/services/home-remodeling — fetched 
 
 ## Live page anatomy
 1. Breadcrumb Home › Services › Full Home Remodels. H1: full home remodels across the Phoenix Valley; sub-line: wall moves, re-piping/rewiring, room-by-room finishing, old water damage fixed on the same job. CTAs: free estimate + phone.
-2. USP section ("builder and restorer"): older Valley homes hide leaks/rot/mold in walls; finish-only crews stop and sub out the fix; Masizo = GC (ROC #336058) + restoration (ROC #347030) + IICRC, fixes and keeps building. Also states: most Google reviews name Steve Martinez, the president [VERIFY name/title — old site named Anthony Ardizzone as president].
+2. USP section ("builder and restorer"): older Valley homes hide leaks/rot/mold in walls; finish-only crews stop and sub out the fix; Masizo = GC (ROC #336058) + restoration (ROC #347030) + IICRC, fixes and keeps building. Also states: most Google reviews name Steve Martinez, the president [VERIFY name/title with owner].
 3. Three sub-services:
    - Whole-Home Remodels: plan the whole house at once vs years of one-room projects; kitchens + baths; electrical/plumbing updates; flooring/paint/trim; permits + inspections.
    - Layout Changes: remove walls, open rooms, reframe; structural planning for load-bearing walls; open floor plans; closets/built-ins.

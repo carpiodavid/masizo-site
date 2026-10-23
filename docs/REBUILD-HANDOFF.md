@@ -100,8 +100,8 @@ the new build — identical slugs mean near-zero redirect loss at cutover:**
 robots.txt with sitemap; real 404s; TTFB 0.25–0.6s; OG tags everywhere;
 `max-image-preview:large`. **Defects to beat:** homepage missing canonical;
 no llms.txt; **zero tracking of any kind**; legacy URLs from the generation
-before this one 404 with no redirects (known: `/services/commercial`,
-`/who-we-are/anthony-ardizzone-president`; discover more via Wayback Machine
+before this one 404 with no redirects (known: `/services/commercial`;
+discover more via Wayback Machine
 and Search Console once access exists).
 
 **⚠️ Content ownership is unconfirmed.** The copy belongs, until proven
