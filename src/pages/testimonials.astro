@@ -18,7 +18,7 @@ import Breadcrumbs from "../components/ui/Breadcrumbs.astro";
 import ReviewExcerpt from "../components/ui/ReviewExcerpt.astro";
 import Prose from "../components/Prose.astro";
 import { breadcrumbNode } from "../components/schema-nodes";
-import { crumbsForNav, crumbsForSchema, loadPage, slugify } from "../lib/content";
+import { crumbsForNav, crumbsForSchema, decodeEntities, loadPage, slugify } from "../lib/content";
 import { resolveFacts } from "../lib/facts";
 
 const page = loadPage("testimonials.md");
@@ -44,7 +44,9 @@ const sections = page.sections.map((section, i) => {
     after = section.html.slice(start + bqMatch[0].length).trim();
     for (const p of [...bqMatch[1].matchAll(/<p>([\s\S]*?)<\/p>/g)]) {
       const m = p[1].match(SLOT_RE);
-      if (m) slots.push({ signal: m[1].trim(), author: m[2].trim() });
+      // The regex captures already-escaped HTML text; decode so the
+      // component's {author}/{quote} expressions escape it exactly once.
+      if (m) slots.push({ signal: decodeEntities(m[1].trim()), author: decodeEntities(m[2].trim()) });
     }
   }
   return { ...section, before, after, slots, eyebrow: kickers[i] ?? String(i + 1).padStart(2, "0") };

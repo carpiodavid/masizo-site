@@ -90,6 +90,17 @@ function escapeHtml(text: string): string {
   return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+/**
+ * Reverse of escapeHtml, for TEXT captured back out of rendered HTML
+ * (e.g. a link label pulled from a section's html with a regex). Pass the
+ * result to Astro expressions (`{text}`), which escape it once — without
+ * this, already-escaped entities escape twice and "&amp;" shows on the page.
+ * Decode &amp; last so "&amp;lt;" round-trips to "&lt;".
+ */
+export function decodeEntities(text: string): string {
+  return text.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+}
+
 /** Inline markdown: links, **bold**, *italic* — over escaped text. */
 export function inlineMd(text: string): string {
   let out = escapeHtml(text);

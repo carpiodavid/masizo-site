@@ -21,7 +21,7 @@ import PhotoPlaceholder from "../components/ui/PhotoPlaceholder.astro";
 import Prose from "../components/Prose.astro";
 import { CITIES, LICENSES, SERVICES, SINCE_YEAR, YEARS_IN_BUSINESS } from "../data/business";
 import { faqNode } from "../components/schema-nodes";
-import { loadPage } from "../lib/content";
+import { decodeEntities, loadPage } from "../lib/content";
 import { resolveFacts } from "../lib/facts";
 
 const page = loadPage("home.md");
@@ -78,7 +78,8 @@ function parseRows(html: string): HomeRow[] {
       const slug = href.split("/").pop() ?? "";
       return {
         index: String(rowIndex).padStart(2, "0"),
-        title: m[2],
+        // m[2] is already-escaped HTML text; decode so {title} escapes once.
+        title: decodeEntities(m[2]),
         href,
         blurbHtml: m[3],
         bullets: scope[slug] ?? [],
@@ -142,15 +143,17 @@ const schema = [faqNode(page.faqItems.map((f) => ({ question: f.q, answerHtml: f
       />
       <div slot="below">
         {emergencyNoteHtml && <p class="hero-note" set:html={emergencyNoteHtml} />}
+        {/* Label-first (dt before dd) for valid dl semantics / screen-reader
+            order; CSS `order` keeps the big numeral visually on top. */}
         <dl class="ledger reveal">
           {
             ledger.map((cell) => (
               <div class="ledger-cell">
+                <dt class="ledger-label">{cell.label}</dt>
                 <dd class="ledger-n tabular">
                   {cell.n}
                   {cell.unit && <span class="ledger-unit">{cell.unit}</span>}
                 </dd>
-                <dt class="ledger-label">{cell.label}</dt>
               </div>
             ))
           }
@@ -330,6 +333,13 @@ const schema = [faqNode(page.faqItems.map((f) => ({ question: f.q, answerHtml: f
     padding-top: var(--space-5);
     border-top: 1px solid var(--c-line);
   }
+  .ledger-cell {
+    /* dt (label) is first in the markup for screen-reader order;
+       `order` puts the numeral visually on top. */
+    display: flex;
+    flex-direction: column;
+  }
+  .ledger-cell .ledger-label { order: 2; }
   .ledger-n {
     font-family: var(--font-display);
     font-size: var(--text-3xl);

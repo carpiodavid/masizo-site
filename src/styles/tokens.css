@@ -186,6 +186,13 @@ strong { font-weight: 650; }
 .on-dark { color: var(--c-bone-on-dark); }
 .on-dark a { color: var(--c-accent-on-dark); }
 .on-dark a:hover { color: var(--c-bone-on-dark); }
+/* Clay is a much lighter ground than agave: the lifted accent (4.9:1 on
+   agave) drops to ~2.7:1 on clay, below AA. On clay bands, text links and
+   kickers go bone instead (5:1+). Buttons keep their own fg (rules below). */
+.tone-clay a { color: var(--c-bone-on-dark); }
+.tone-clay a:hover { color: var(--c-bone); }
+.tone-clay .kicker { color: var(--c-bone-on-dark); }
+.tone-clay .kicker::before { background: var(--c-bone-on-dark); }
 /* Buttons keep their own fg on dark grounds (.on-dark a would wash them out) */
 .on-dark a.btn-bone, .on-dark a.btn-bone:hover { color: var(--c-ink); }
 .on-dark a.btn-clay, .on-dark a.btn-clay:hover { color: var(--c-bone-on-dark); }

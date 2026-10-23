@@ -103,6 +103,9 @@ const showPhone = phone ?? variant === "emergency";
     color: var(--c-ink-soft);
   }
   .on-dark .hero-lede { color: var(--c-mut-on-dark); }
+  /* --c-mut-on-dark is tuned for agave; on the lighter clay ground it falls
+     to ~3.2:1 — use bone there (5:1 on clay) for the lede body text. */
+  .tone-clay .hero-lede { color: var(--c-bone-on-dark); }
 
   .hero-actions {
     display: flex;
