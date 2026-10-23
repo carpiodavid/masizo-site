@@ -1,0 +1,37 @@
+---
+/**
+ * ROUTE STUB — scaffold agent. Gated city pages (/service-areas/<city>).
+ *
+ * THE NO-PHOTO-NO-PAGE RULE (handoff §5, §6.3): a city page is built ONLY for
+ * cities with hasPhoto: true in business.ts — i.e. only once a real,
+ * completed-job photo from that city exists. All cities are hasPhoto: false
+ * at scaffold time, so this route currently builds ZERO pages (that is
+ * correct, not a bug). Flipping a city's hasPhoto to true makes its page
+ * appear on the next build.
+ *
+ * Content agent: per-city copy must be HAND-WRITTEN and non-templated
+ * (anti-doorway rule) — this file only provides the shell.
+ */
+import Base from "../../layouts/Base.astro";
+import { CITIES, DISPLAY_NAME, type City } from "../../data/business";
+
+export function getStaticPaths() {
+  return CITIES.filter((city) => city.hasPhoto).map((city) => ({
+    params: { city: city.slug },
+    props: { city },
+  }));
+}
+
+interface Props {
+  city: City;
+}
+
+const { city } = Astro.props;
+---
+
+<Base title={`${city.name}, AZ | ${DISPLAY_NAME}`}>
+  <main>
+    <h1>{city.name}, Arizona</h1>
+    <p>[CONTENT: service-areas/{city.slug} — pending content agent]</p>
+  </main>
+</Base>

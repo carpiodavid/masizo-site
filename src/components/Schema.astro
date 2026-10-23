@@ -1,0 +1,106 @@
+---
+/**
+ * Schema.astro — the sitewide JSON-LD graph (handoff §5, SEO/GEO/LLMO spec).
+ *
+ * Rendered once per page by Base.astro. Emits one <script type="application/ld+json">
+ * containing an @graph of:
+ *   - GeneralContractor + Organization node (NAP, areaServed from CITIES,
+ *     hasCredential for the three licenses, 24/7 openingHoursSpecification,
+ *     sameAs -> GBP/Facebook/Instagram/Yelp)  [sitewide]
+ *   - WebSite node                            [sitewide]
+ *   - ...any per-page nodes passed via the `nodes` prop
+ *
+ * Per-page usage (content agents): pass extra nodes through Base's `schema`
+ * prop. Build them with the helpers below so @ids stay consistent:
+ *
+ *   import { serviceNode, breadcrumbNode, faqNode, articleNode, ORG_ID } from "../components/schema-nodes";
+ *   <Base title=... schema={[serviceNode(service), breadcrumbNode([...]), faqNode([...])]}>
+ *
+ * All business values come from src/data/business.ts — never inline a fact here.
+ */
+import {
+  SITE_URL,
+  LEGAL_NAME,
+  TRADE_NAME,
+  PHONE_E164,
+  EMAIL,
+  LICENSES,
+  CITIES,
+  ADDRESS,
+  SAME_AS,
+  SINCE_YEAR,
+} from "../data/business";
+import { ORG_ID, WEBSITE_ID } from "./schema-nodes";
+
+export interface Props {
+  /** Per-page JSON-LD nodes (Service / BreadcrumbList / FAQPage / Article) appended to the @graph. */
+  nodes?: Record<string, unknown>[];
+}
+
+const { nodes = [] } = Astro.props;
+
+const ALL_DAYS = [
+  "https://schema.org/Monday",
+  "https://schema.org/Tuesday",
+  "https://schema.org/Wednesday",
+  "https://schema.org/Thursday",
+  "https://schema.org/Friday",
+  "https://schema.org/Saturday",
+  "https://schema.org/Sunday",
+];
+
+const organization = {
+  "@type": ["GeneralContractor", "Organization"],
+  "@id": ORG_ID,
+  name: LEGAL_NAME,
+  alternateName: TRADE_NAME,
+  url: `${SITE_URL}/`,
+  telephone: PHONE_E164,
+  email: EMAIL,
+  foundingDate: String(SINCE_YEAR),
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: ADDRESS.locality,
+    addressRegion: ADDRESS.region,
+    addressCountry: ADDRESS.country,
+  },
+  areaServed: CITIES.map((city) => ({
+    "@type": "City",
+    name: `${city.name}, AZ`,
+  })),
+  hasCredential: LICENSES.map((license) => ({
+    "@type": "EducationalOccupationalCredential",
+    credentialCategory: "license",
+    name: license.label,
+    identifier: license.number,
+    recognizedBy: {
+      "@type": "GovernmentOrganization",
+      name: license.issuer,
+    },
+  })),
+  openingHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ALL_DAYS,
+      opens: "00:00",
+      closes: "23:59",
+    },
+  ],
+  sameAs: SAME_AS,
+};
+
+const website = {
+  "@type": "WebSite",
+  "@id": WEBSITE_ID,
+  url: `${SITE_URL}/`,
+  name: TRADE_NAME,
+  publisher: { "@id": ORG_ID },
+};
+
+const graph = {
+  "@context": "https://schema.org",
+  "@graph": [organization, website, ...nodes],
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(graph)} is:inline />

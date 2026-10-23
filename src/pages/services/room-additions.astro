@@ -1,0 +1,19 @@
+---
+/**
+ * ROUTE STUB — scaffold agent. Content agent owns everything inside <Base>.
+ * Fill: copy (~3,300+ words parity bar), FAQ section, hand-written meta
+ * description, and schema nodes via schema-nodes.ts
+ * (serviceNode + breadcrumbNode + faqNode — see handoff §5).
+ */
+import Base from "../../layouts/Base.astro";
+import { SERVICES, DISPLAY_NAME } from "../../data/business";
+
+const service = SERVICES.find((s) => s.slug === "room-additions")!;
+---
+
+<Base title={`${service.name} | ${DISPLAY_NAME}`}>
+  <main>
+    <h1>{service.name}</h1>
+    <p>[CONTENT: services/room-additions — pending content agent]</p>
+  </main>
+</Base>

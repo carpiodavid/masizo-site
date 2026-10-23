@@ -1,0 +1,10 @@
+/*
+ * tokens.css — the design system's single token file (handoff §4,
+ * "design-system first").
+ *
+ * OWNED BY THE DESIGN AGENT. Intentionally empty at scaffold time so that
+ * Base.astro's import never breaks. The design agent fills this with the
+ * chosen system's custom properties: colors (desert/material palette),
+ * type scale, spacing scale, radii, etc. Pages consume tokens only —
+ * no page defines its own raw color/size values.
+ */

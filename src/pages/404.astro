@@ -1,0 +1,20 @@
+---
+/**
+ * Real 404 page (handoff §5). Cloudflare Pages serves dist/404.html
+ * automatically for unmatched routes on a static site.
+ * Content/design agents: make it useful (nav back to services/contact).
+ */
+import Base from "../layouts/Base.astro";
+import { DISPLAY_NAME, PHONE_TEL, PHONE_DISPLAY } from "../data/business";
+---
+
+<Base title={`Page Not Found | ${DISPLAY_NAME}`} noindex>
+  <main>
+    <h1>Page not found</h1>
+    <p>[CONTENT: 404 — pending content agent]</p>
+    <p>
+      <a href="/">Home</a> · <a href="/services">Services</a> ·
+      <a href="/contact">Contact</a> · <a href={PHONE_TEL}>{PHONE_DISPLAY}</a>
+    </p>
+  </main>
+</Base>

@@ -1,0 +1,21 @@
+---
+/**
+ * ROUTE STUB — scaffold agent. Services hub (/services).
+ * Content agent: copy + meta; schema: add an ItemList node of SERVICES
+ * (live page carries ItemList, handoff §3).
+ */
+import Base from "../../layouts/Base.astro";
+import { SERVICES, DISPLAY_NAME } from "../../data/business";
+---
+
+<Base title={`Services | ${DISPLAY_NAME}`}>
+  <main>
+    <h1>Services</h1>
+    <p>[CONTENT: services — pending content agent]</p>
+    <ul>
+      {SERVICES.map((service) => (
+        <li><a href={service.path}>{service.name}</a></li>
+      ))}
+    </ul>
+  </main>
+</Base>

@@ -1,0 +1,25 @@
+---
+/**
+ * ROUTE STUB — scaffold agent. Service-areas hub (/service-areas).
+ * Lists all 10 cities as plain text; links a city ONLY when its gated page
+ * exists (hasPhoto — the no-photo-no-page rule, handoff §5/§6.3).
+ */
+import Base from "../../layouts/Base.astro";
+import { CITIES, DISPLAY_NAME } from "../../data/business";
+---
+
+<Base title={`Service Areas | ${DISPLAY_NAME}`}>
+  <main>
+    <h1>Service Areas</h1>
+    <p>[CONTENT: service-areas — pending content agent]</p>
+    <ul>
+      {CITIES.map((city) =>
+        city.hasPhoto ? (
+          <li><a href={`/service-areas/${city.slug}`}>{city.name}</a></li>
+        ) : (
+          <li>{city.name}</li>
+        )
+      )}
+    </ul>
+  </main>
+</Base>

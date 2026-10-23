@@ -1,0 +1,17 @@
+# build output
+dist/
+# generated types
+.astro/
+# dependencies
+node_modules/
+# logs
+npm-debug.log*
+# environment / secrets — never commit secrets (RESEND_API_KEY etc. are
+# set in the Cloudflare Pages dashboard, see README)
+.env
+.env.*
+!.env.example
+# wrangler local state
+.wrangler/
+# OS
+.DS_Store

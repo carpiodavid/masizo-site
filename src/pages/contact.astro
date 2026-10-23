@@ -1,0 +1,22 @@
+---
+/**
+ * ROUTE STUB — scaffold agent. Contact (/contact).
+ * Content/design agents: lead form POSTs to /api/lead (see
+ * functions/api/lead.ts header for the exact field contract, honeypot, and
+ * the REQUIRED SMS-consent disclosure text). On success: redirect to
+ * /thank-you and fire window.masizoTrack("lead_submit"). Include the GBP map
+ * embed (GBP_CID) and tel: link (PHONE_TEL — call clicks auto-tracked).
+ */
+import Base from "../layouts/Base.astro";
+import { DISPLAY_NAME, PHONE_TEL, PHONE_DISPLAY, EMAIL } from "../data/business";
+---
+
+<Base title={`Contact | ${DISPLAY_NAME}`}>
+  <main>
+    <h1>Contact</h1>
+    <p>[CONTENT: contact — pending content agent]</p>
+    <p>
+      <a href={PHONE_TEL}>{PHONE_DISPLAY}</a> · <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
+    </p>
+  </main>
+</Base>

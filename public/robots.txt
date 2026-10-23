@@ -1,0 +1,23 @@
+# robots.txt — www.masizodevelopment.com
+# Policy (handoff §5): allow all crawlers, including AI/answer-engine bots,
+# named explicitly below so the welcome is unambiguous.
+
+User-agent: *
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://www.masizodevelopment.com/sitemap-index.xml

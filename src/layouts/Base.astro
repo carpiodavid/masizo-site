@@ -1,0 +1,195 @@
+---
+/**
+ * Base.astro — the html shell every page uses.
+ *
+ * Props API (for design + content agents):
+ *   title        REQUIRED  — <title> text. Target pattern (handoff §5):
+ *                            "{Service} in {Geo} | Masizo Development".
+ *   description  optional  — hand-written meta description. Omitting it emits
+ *                            no description tag (never auto-generate one).
+ *   ogType       optional  — "website" (default) or "article" (guides).
+ *   ogImage      optional  — absolute path (e.g. "/images/og/roofing.jpg");
+ *                            resolved against SITE_URL.
+ *   noindex      optional  — true adds robots noindex (e.g. /thank-you).
+ *   schema       optional  — per-page JSON-LD nodes appended to the sitewide
+ *                            graph; build with src/components/schema-nodes.ts.
+ *
+ * Guarantees on EVERY page: canonical (SITE_URL + pathname, no trailing
+ * slash), OG tags, viewport, favicon, the JSON-LD graph, and GA4 (only when
+ * PUBLIC_GA4_ID is set — renders nothing otherwise).
+ *
+ * Tracking helpers available on every page:
+ *   - every <a href="tel:..."> click fires a "call_click" GA4 event
+ *     automatically — just use PHONE_TEL from business.ts for the href.
+ *   - window.masizoTrack("lead_submit", {...}) — call from the lead form on
+ *     successful submit. Safe no-op when GA4 is unset.
+ *
+ * Styling: ONLY a minimal reset lives here. All visual design arrives via
+ * src/styles/tokens.css (design agent) and page/component styles.
+ */
+import Schema from "../components/Schema.astro";
+import { SITE_URL, TRADE_NAME } from "../data/business";
+import "../styles/tokens.css";
+
+export interface Props {
+  title: string;
+  description?: string;
+  ogType?: "website" | "article";
+  ogImage?: string;
+  noindex?: boolean;
+  schema?: Record<string, unknown>[];
+}
+
+const {
+  title,
+  description,
+  ogType = "website",
+  ogImage,
+  noindex = false,
+  schema = [],
+} = Astro.props;
+
+// Canonical on EVERY page (fixes the live site's missing homepage canonical).
+// trailingSlash: "never" in astro.config keeps pathnames slash-free.
+const pathname = Astro.url.pathname === "/" ? "/" : Astro.url.pathname.replace(/\/$/, "");
+const canonical = new URL(pathname, SITE_URL).href;
+const ogImageUrl = ogImage ? new URL(ogImage, SITE_URL).href : undefined;
+
+const GA4_ID = import.meta.env.PUBLIC_GA4_ID;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="robots" content="max-image-preview:large" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={TRADE_NAME} />
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="en_US" />
+    {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
+    <meta name="twitter:card" content={ogImageUrl ? "summary_large_image" : "summary"} />
+
+    <!-- Favicon: placeholder — replace with Masizo brand mark (design agent). -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <Schema nodes={schema} />
+
+    {
+      GA4_ID && (
+        <>
+          <script
+            is:inline
+            async
+            src={`https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`}
+          />
+          <script is:inline define:vars={{ GA4_ID }}>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+              window.dataLayer.push(arguments);
+            }
+            window.gtag = gtag;
+            gtag("js", new Date());
+            gtag("config", GA4_ID);
+          </script>
+        </>
+      )
+    }
+    <!--
+      Dormant slots (handoff §5 tracking): Google Ads tag and optional Meta
+      pixel are added here, gated behind their own PUBLIC_* env vars, once IDs
+      exist. Disclose all tracking in /privacy-policy (content agent).
+    -->
+  </head>
+  <body>
+    <slot />
+
+    <!-- Event helper + automatic call_click tracking. No-op when GA4 unset. -->
+    <script is:inline>
+      window.masizoTrack = function (eventName, params) {
+        if (typeof window.gtag === "function") {
+          window.gtag("event", eventName, params || {});
+        }
+      };
+      document.addEventListener("click", function (event) {
+        var target = event.target;
+        if (!target || typeof target.closest !== "function") return;
+        var link = target.closest('a[href^="tel:"]');
+        if (link) {
+          window.masizoTrack("call_click", {
+            link_url: link.getAttribute("href"),
+            page_path: window.location.pathname,
+          });
+        }
+      });
+    </script>
+
+    <style is:global>
+      /*
+       * Minimal reset ONLY (handoff §4: no visual styling at scaffold time —
+       * the design system arrives in src/styles/tokens.css).
+       */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      body,
+      h1,
+      h2,
+      h3,
+      h4,
+      p,
+      figure,
+      blockquote,
+      ul,
+      ol,
+      dl,
+      dd {
+        margin: 0;
+      }
+      html {
+        -webkit-text-size-adjust: 100%;
+      }
+      body {
+        min-height: 100vh;
+        line-height: 1.5;
+      }
+      img,
+      picture,
+      video,
+      svg {
+        display: block;
+        max-width: 100%;
+        height: auto;
+      }
+      input,
+      button,
+      textarea,
+      select {
+        font: inherit;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
+  </body>
+</html>
