@@ -18,11 +18,8 @@ LEAD_EMAIL_TO = "office@masizodevelopment.com"
 # domain verified in the Masizo-owned Resend account before go-live.
 LEAD_EMAIL_FROM = "leads@masizodevelopment.com"
 
-# KV namespace for loss-proof lead storage (written BEFORE any email attempt).
-# PLACEHOLDER id — create the namespace in the Masizo-owned Cloudflare account:
-#   npx wrangler kv namespace create LEADS
-# then paste the returned id below (and a separate preview namespace id if you
-# use `wrangler pages dev`).
-[[kv_namespaces]]
-binding = "LEADS"
-id = "REPLACE_WITH_LEADS_KV_NAMESPACE_ID"
+# KV namespace for loss-proof lead storage (written BEFORE any email attempt):
+# the LEADS binding is configured in the Cloudflare Pages dashboard
+# (Settings > Bindings > KV namespace "LEADS" -> masizo-leads), NOT here —
+# a kv_namespaces block in this file would override the dashboard binding and
+# requires a hardcoded namespace id. For local dev: npx wrangler pages dev dist --kv LEADS
