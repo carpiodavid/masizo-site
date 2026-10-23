@@ -7,7 +7,7 @@ Recon date: 2026-10-23. Purpose: every historical URL on masizodevelopment.com (
 | Source | Result |
 |---|---|
 | Wayback CDX API (`web.archive.org/cdx/...`, both hosts, wildcard) | **UNREACHABLE from this build environment** — the egress proxy blocks web.archive.org (policy denial; per proxy rules, not worked around). |
-| archive.org Wayback *availability* API (per-URL probes) | Reachable. Domain has **snapshots of the homepage only**: apex `/` captured 2024-09-18 and 2025-03-17. Probes of `/services/commercial`, `/who-we-are`, `/who-we-are/anthony-ardizzone-president`, `/services`, `/contact` → **no snapshot**. Wayback coverage of this domain is effectively homepage-only. |
+| archive.org Wayback *availability* API (per-URL probes) | Reachable. Domain has **snapshots of the homepage only**: apex `/` captured 2024-09-18 and 2025-03-17. Probes of `/services/commercial`, `/who-we-are`, `/services`, `/contact` → **no snapshot**. Wayback coverage of this domain is effectively homepage-only. |
 | Common Crawl CDX (indexes sampled 2019–2026, domain match) | **Zero captures** of masizodevelopment.com in any index that answered ("No Captures found"). |
 | Web search (`site:` + name/path queries) | No legacy URLs surfaced. |
 | Live crawl (all 17 sitemap URLs + sitemap.xml + robots.txt) | Confirms the current URL set below. |
@@ -79,4 +79,4 @@ These are plausible previous-generation paths (the old site was WordPress-style)
 /careers          /contact                    301
 ```
 
-Note: Anthony Ardizzone was the president named by the old site; the current site (schema + copy) names **Steven Martinez** as president — flag to owner ([VERIFY] who is named on the new site).
+Note: the current site (schema + copy) names **Steven Martinez** as president — [VERIFY] with owner before naming anyone on the new site. (An earlier 'Anthony Ardizzone' reference was cross-contamination from a different client's audit; disregard.)
