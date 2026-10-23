@@ -97,8 +97,10 @@ export const onRequestPost = async (context: PagesContext): Promise<Response> =>
   const lead = await parseBody(request);
 
   // Honeypot: pretend success so bots learn nothing; store nothing.
+  // Body shape matches the best-case real response exactly, so a bot cannot
+  // tell a fake success from a real one (QA hardening).
   if (lead.company !== "") {
-    return json({ ok: true }, 200);
+    return json({ ok: true, emailSent: true }, 200);
   }
 
   // Validation.
