@@ -1,0 +1,301 @@
+---
+/**
+ * DESIGN COMP C — "Sunbaked Adobe"
+ * Warm color-field composition: full-bleed terracotta hero block with an
+ * overlapping photo, mosaic service tiles in varied material tones, agave
+ * review band. The boldest, most graphic of the three directions.
+ * Copy is minimal placeholder — content agent owns final words.
+ */
+import Base from "../../layouts/Base.astro";
+import Header from "../../components/ui/Header.astro";
+import Footer from "../../components/ui/Footer.astro";
+import Hero from "../../components/ui/Hero.astro";
+import Section from "../../components/ui/Section.astro";
+import ServiceCard from "../../components/ui/ServiceCard.astro";
+import TrustStrip from "../../components/ui/TrustStrip.astro";
+import FAQ from "../../components/ui/FAQ.astro";
+import ReviewExcerpt from "../../components/ui/ReviewExcerpt.astro";
+import CTABand from "../../components/ui/CTABand.astro";
+import StickyCallBar from "../../components/ui/StickyCallBar.astro";
+import PhotoPlaceholder from "../../components/ui/PhotoPlaceholder.astro";
+import {
+  DISPLAY_NAME,
+  SERVICES,
+  SINCE_YEAR,
+  YEARS_IN_BUSINESS,
+} from "../../data/business";
+
+/** Tile tones cycle through the material palette — never nine identical cards. */
+const tileTones = ["sand", "stone", "agave", "stone", "sand", "agave", "sand", "clay", "stone"] as const;
+
+const blurbs: Record<string, string> = {
+  "custom-homes": "Ground-up, design to doorknobs.",
+  "home-remodeling": "The whole house, rethought.",
+  "kitchen-remodeling": "The hardest-working room, rebuilt.",
+  "bathroom-remodeling": "Tile, stone, and steam done right.",
+  "room-additions": "Grow the house, keep the address.",
+  "adu-construction": "Casitas & ADUs, permit to keys.",
+  "roofing": "Desert-proof roofs, repaired or replaced.",
+  "restoration": "Water, mold & fire — on call 24/7.",
+  "commercial": "Commercial GC & tenant improvements.",
+};
+
+const faqs = [
+  {
+    q: "Do you only do big projects?",
+    answerHtml: "<p>[CONTENT: project-size answer — content agent]</p>",
+  },
+  {
+    q: "What happens on the first visit?",
+    answerHtml: "<p>[CONTENT: consultation walkthrough — content agent]</p>",
+  },
+  {
+    q: "Who actually does the work?",
+    answerHtml: "<p>[CONTENT: crew/subs answer — content agent]</p>",
+  },
+];
+---
+
+<Base
+  title={`${DISPLAY_NAME} | Design comp C — Sunbaked Adobe`}
+  noindex={true}
+>
+  <Header />
+  <main id="main">
+    <div class="hero-wrap-c">
+      <Hero variant="home" tone="clay" eyebrow={`Est. ${SINCE_YEAR} — Gilbert, Arizona`} phone={true}>
+        <h1 slot="heading" class="hero-title-c">
+          Homes, built like they belong here.
+        </h1>
+        <p>
+          Custom builds, remodels, ADUs, and roofing from a
+          {YEARS_IN_BUSINESS}-year East Valley contractor — plus restoration
+          crews on call day and night.
+        </p>
+        <a slot="actions" class="btn btn-outline-dark" href="/portfolio">See the work</a>
+        <PhotoPlaceholder
+          slot="media"
+          label="saguaro-framed custom home, dusk"
+          ratio="1/1"
+          tone="sand"
+          class="hero-photo-c reveal"
+        />
+      </Hero>
+      <TrustStrip tone="agave" flush />
+    </div>
+
+    <Section eyebrow="What we build" title="Pick the project. We bring the crew." wide>
+      <a slot="action" class="link-arrow" href="/services">
+        All services
+        <svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"
+          ><path d="M3 10h13M11 4.5 16.5 10 11 15.5"></path></svg
+        >
+      </a>
+      <div class="tiles">
+        {
+          SERVICES.map((s, i) => (
+            <div class="reveal">
+              <ServiceCard
+                look="tile"
+                title={s.name}
+                href={s.path}
+                blurb={blurbs[s.slug]}
+                index={String(i + 1).padStart(2, "0")}
+                emergency={s.emergency}
+                tone={s.emergency ? "clay" : tileTones[i % tileTones.length]}
+              />
+            </div>
+          ))
+        }
+      </div>
+    </Section>
+
+    <Section id="about" eyebrow="Since 1998" tone="sand">
+      <div class="statement-grid">
+        <p class="statement reveal">
+          Twenty-eight summers of Arizona sun teach a builder what lasts.
+          We've spent them framing, roofing, remodeling — and showing up at
+          midnight when a pipe lets go. <span class="statement-accent">[CONTENT: about statement — content agent]</span>
+        </p>
+        <div class="statement-photos">
+          <PhotoPlaceholder label="crew portrait on site" ratio="4/3" tone="agave" class="reveal" />
+          <PhotoPlaceholder label="hand-troweled stucco detail" ratio="1/1" tone="clay" class="statement-photo-sm reveal" />
+        </div>
+      </div>
+    </Section>
+
+    <Section eyebrow="How it works" title="A straight line from call to keys.">
+      <ol class="steps-c">
+        {
+          [
+            { t: "We walk it", d: "Free on-site consult. [CONTENT]" },
+            { t: "We write it", d: "Scope, timeline, price — on paper. [CONTENT]" },
+            { t: "We build it", d: "Permits to punch list, handled. [CONTENT]" },
+          ].map((step, i) => (
+            <li class="step-c reveal">
+              <span class="step-c-n numeral" aria-hidden="true">{i + 1}</span>
+              <div>
+                <h3 class="step-c-t">{step.t}</h3>
+                <p class="step-c-d">{step.d}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </Section>
+
+    <Section eyebrow="In their words" title="Five stars, earned slowly." tone="agave">
+      <a slot="action" class="link-arrow" href="/testimonials">
+        All reviews
+        <svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"
+          ><path d="M3 10h13M11 4.5 16.5 10 11 15.5"></path></svg
+        >
+      </a>
+      <div class="reviews-c">
+        <div class="reveal">
+          <ReviewExcerpt
+            quote="[REVIEW: verbatim Google review #1 — content agent inserts real, attributed quote]"
+            author="[Reviewer name]"
+          />
+        </div>
+        <div class="reveal">
+          <ReviewExcerpt
+            quote="[REVIEW: verbatim Google review #2 — content agent inserts real, attributed quote]"
+            author="[Reviewer name]"
+          />
+        </div>
+      </div>
+    </Section>
+
+    <Section eyebrow="Good to know" title="Fair questions.">
+      <div class="faq-wrap reveal">
+        <FAQ items={faqs} />
+      </div>
+    </Section>
+
+    <CTABand
+      tone="clay"
+      eyebrow="Ready when you are"
+      title="One call starts the walkthrough."
+    />
+  </main>
+  <Footer />
+  <StickyCallBar />
+</Base>
+
+<style>
+  .hero-wrap-c :global(.hero) {
+    position: relative;
+  }
+  /* Sun-arc motif in the clay field */
+  .hero-wrap-c :global(.hero)::before {
+    content: "";
+    position: absolute;
+    top: -20%;
+    right: -8%;
+    width: 44rem;
+    height: 44rem;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(246, 240, 228, 0.1) 0%, transparent 62%);
+    pointer-events: none;
+  }
+  .hero-title-c {
+    margin-top: var(--space-4);
+    font-size: var(--text-6xl);
+    line-height: var(--leading-tight);
+    letter-spacing: -0.02em;
+    max-width: 13ch;
+  }
+  :global(.hero-photo-c) {
+    max-width: 24rem;
+    margin-left: auto;
+    transform: translateY(1.5rem);
+    box-shadow: var(--shadow-lift);
+  }
+  @media (max-width: 899px) {
+    :global(.hero-photo-c) {
+      max-width: 100%;
+      aspect-ratio: 16 / 10 !important;
+      transform: none;
+      margin-left: 0;
+    }
+  }
+
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    gap: var(--space-4);
+  }
+  .tiles > div { display: grid; }
+
+  .statement-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: var(--space-8);
+    align-items: center;
+  }
+  .statement {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 460;
+    line-height: 1.38;
+    letter-spacing: -0.01em;
+    max-width: 30ch;
+  }
+  .statement-accent {
+    font-style: italic;
+    color: var(--c-clay-deep);
+  }
+  .statement-photos {
+    position: relative;
+    padding-bottom: var(--space-7);
+  }
+  :global(.statement-photo-sm) {
+    position: absolute;
+    right: -1rem;
+    bottom: 0;
+    width: 45%;
+    box-shadow: var(--shadow-md);
+  }
+  @media (max-width: 767px) {
+    .statement-grid { grid-template-columns: minmax(0, 1fr); gap: var(--space-6); }
+    :global(.statement-photo-sm) { right: 0; }
+  }
+
+  .steps-c {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-6);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .step-c {
+    display: flex;
+    gap: var(--space-4);
+    align-items: flex-start;
+    padding: var(--space-5);
+    background: var(--c-sand);
+    border-radius: var(--radius-sm);
+  }
+  .step-c-n { font-size: var(--text-4xl); }
+  .step-c-t { font-size: var(--text-lg); font-family: var(--font-text); font-weight: 650; }
+  .step-c-d { margin-top: var(--space-1); color: var(--c-ink-soft); font-size: var(--text-sm); }
+  @media (max-width: 767px) {
+    .steps-c { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
+  }
+
+  .reviews-c {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-7);
+  }
+  .reviews-c :global(.review) { border-left-color: var(--c-accent-on-dark); }
+  .reviews-c :global(.review-quote p) { color: var(--c-bone-on-dark); }
+  .reviews-c :global(.review-author) { color: var(--c-bone-on-dark); }
+  @media (max-width: 767px) {
+    .reviews-c { grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
+  }
+
+  .faq-wrap { max-width: 50rem; }
+</style>

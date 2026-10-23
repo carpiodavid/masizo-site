@@ -1,0 +1,175 @@
+---
+/**
+ * ServiceCard — one service in a listing. Two looks, one component:
+ *  - "row" (default): editorial ledger row — index numeral, Fraunces title,
+ *    scope line, arrow; hairline-ruled, flat (no drop-shadow card grid).
+ *  - "tile": flat toned panel for mosaic layouts (tone varies per tile —
+ *    never a grid of identical shadowed cards, handoff §4).
+ */
+interface Props {
+  title: string;
+  href: string;
+  blurb?: string;
+  /** Short scope bullets (rendered inline, dot-separated). */
+  bullets?: string[];
+  /** Two-digit index for the ledger treatment, e.g. "01". */
+  index?: string;
+  emergency?: boolean;
+  look?: "row" | "tile";
+  tone?: "sand" | "stone" | "agave" | "clay" | "bone";
+}
+const {
+  title,
+  href,
+  blurb,
+  bullets = [],
+  index,
+  emergency = false,
+  look = "row",
+  tone = "sand",
+} = Astro.props;
+const dark = tone === "agave" || tone === "clay";
+---
+
+{
+  look === "row" ? (
+    <a class:list={["svc-row", { emergency }]} href={href}>
+      {index && <span class="svc-index numeral" aria-hidden="true">{index}</span>}
+      <span class="svc-main">
+        <span class="svc-title">
+          {title}
+          {emergency && <span class="svc-badge">24/7</span>}
+        </span>
+        {blurb && <span class="svc-blurb">{blurb}</span>}
+        {bullets.length > 0 && (
+          <span class="svc-bullets">{bullets.join("  ·  ")}</span>
+        )}
+      </span>
+      <svg class="svc-arrow" viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M3 10h13M11 4.5 16.5 10 11 15.5" />
+      </svg>
+    </a>
+  ) : (
+    <a class:list={["svc-tile", `tone-${tone}`, { "on-dark": dark, emergency }]} href={href}>
+      <span class="svc-tile-top">
+        {index && <span class="svc-tile-index" aria-hidden="true">{index}</span>}
+        {emergency && <span class="svc-badge">24/7</span>}
+      </span>
+      <span class="svc-tile-title">{title}</span>
+      {blurb && <span class="svc-tile-blurb">{blurb}</span>}
+      <svg class="svc-arrow" viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M3 10h13M11 4.5 16.5 10 11 15.5" />
+      </svg>
+    </a>
+  )
+}
+
+<style>
+  /* ---- row look ---- */
+  .svc-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: var(--space-5);
+    padding: var(--space-5) var(--space-2);
+    border-bottom: 1px solid var(--c-line);
+    text-decoration: none;
+    color: var(--c-ink);
+    transition: background 140ms ease;
+  }
+  .svc-row:hover { background: color-mix(in srgb, var(--c-sand) 55%, transparent); color: var(--c-ink); }
+  .svc-index {
+    font-size: var(--text-xl);
+    min-width: 2.2ch;
+  }
+  .svc-main { display: block; min-width: 0; }
+  .svc-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 540;
+    letter-spacing: -0.01em;
+    line-height: var(--leading-snug);
+  }
+  .svc-blurb {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: var(--text-base);
+    color: var(--c-ink-soft);
+    max-width: 58ch;
+  }
+  .svc-bullets {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: var(--text-xs);
+    font-weight: 560;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--c-clay-deep);
+  }
+  .svc-arrow {
+    width: 1.3rem;
+    height: 1.3rem;
+    align-self: center;
+    color: var(--c-clay);
+    transition: transform 140ms ease;
+  }
+  .svc-row:hover .svc-arrow,
+  .svc-tile:hover .svc-arrow { transform: translateX(4px); }
+
+  .svc-badge {
+    font-family: var(--font-text);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 0.25em 0.55em;
+    border-radius: var(--radius-xs);
+    background: var(--c-clay);
+    color: var(--c-bone-on-dark);
+    transform: translateY(-0.2em);
+  }
+
+  /* ---- tile look ---- */
+  .svc-tile {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-6) var(--space-5);
+    min-height: 13rem;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: transform 160ms ease, box-shadow 160ms ease;
+  }
+  .svc-tile:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+  .svc-tile-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .svc-tile-index {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 380;
+    font-size: var(--text-lg);
+    opacity: 0.65;
+  }
+  .svc-tile-title {
+    margin-top: auto;
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 560;
+    line-height: var(--leading-snug);
+  }
+  .svc-tile-blurb {
+    font-size: var(--text-sm);
+    opacity: 0.82;
+    max-width: 34ch;
+  }
+  .svc-tile .svc-arrow { color: currentColor; margin-top: var(--space-2); }
+  .svc-tile.on-dark .svc-arrow { color: var(--c-accent-on-dark); }
+  @media (max-width: 639px) {
+    .svc-tile { min-height: 9rem; padding: var(--space-5) var(--space-4); }
+  }
+</style>

@@ -1,0 +1,117 @@
+---
+/**
+ * Section — the system's section wrapper. Implements the sitewide
+ * "rhythm stamp": hairline + clay kicker -> large left-aligned Fraunces
+ * heading -> optional right-aligned action (slot name="action", usually a
+ * phone CTA or a link-arrow). Content goes in the default slot.
+ *
+ * Also ships the sitewide reveal observer (subtle scroll reveal; elements
+ * opt in with class="reveal" — tokens.css handles reduced-motion + no-JS).
+ */
+interface Props {
+  /** Kicker label, e.g. "What we do". Omit for a bare band. */
+  eyebrow?: string;
+  /** Section heading. Omit if the content brings its own. */
+  title?: string;
+  /** Heading level for `title` (default h2). */
+  level?: "h1" | "h2" | "h3";
+  tone?: "bone" | "sand" | "stone" | "agave" | "clay";
+  /** Wider container for photo-led bands. */
+  wide?: boolean;
+  /** Tighter vertical padding (e.g. strips between full sections). */
+  tight?: boolean;
+  id?: string;
+  class?: string;
+}
+const {
+  eyebrow,
+  title,
+  level = "h2",
+  tone = "bone",
+  wide = false,
+  tight = false,
+  id,
+  class: className = "",
+} = Astro.props;
+const Heading = level;
+const dark = tone === "agave" || tone === "clay";
+---
+
+<section
+  {id}
+  class:list={["section", `tone-${tone}`, { "on-dark": dark, tight }, className]}
+>
+  <div class:list={[wide ? "container-wide" : "container"]}>
+    {
+      (eyebrow || title || Astro.slots.has("action")) && (
+        <header class="section-head reveal">
+          <div class="section-head-main">
+            {eyebrow && <p class="kicker">{eyebrow}</p>}
+            {title && <Heading class="section-title">{title}</Heading>}
+          </div>
+          {Astro.slots.has("action") && (
+            <div class="section-head-action">
+              <slot name="action" />
+            </div>
+          )}
+        </header>
+      )
+    }
+    <slot />
+  </div>
+</section>
+
+<style>
+  .section {
+    padding-block: var(--section-pad);
+  }
+  .section.tight {
+    padding-block: var(--space-7);
+  }
+  .section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-4) var(--space-6);
+    margin-bottom: clamp(2rem, 4vw, 3.5rem);
+  }
+  .section-head-main {
+    max-width: 38ch;
+  }
+  .section-title {
+    margin-top: var(--space-3);
+    font-size: var(--text-3xl);
+  }
+  .section-head-action {
+    padding-bottom: 0.4rem;
+  }
+  @media (max-width: 639px) {
+    .section-head-action {
+      padding-bottom: 0;
+    }
+  }
+</style>
+
+<script>
+  // Subtle scroll reveal — runs once per page (Astro dedupes component scripts).
+  document.documentElement.classList.add("js");
+  const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const items = document.querySelectorAll(".reveal");
+  if (prefersReduced || !("IntersectionObserver" in window)) {
+    items.forEach((el) => el.classList.add("is-in"));
+  } else {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-in");
+            io.unobserve(entry.target);
+          }
+        }
+      },
+      { rootMargin: "0px 0px -8% 0px", threshold: 0.05 }
+    );
+    items.forEach((el) => io.observe(el));
+  }
+</script>

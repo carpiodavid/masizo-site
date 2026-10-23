@@ -1,0 +1,86 @@
+---
+/**
+ * ReviewExcerpt — a single verbatim review quote with attribution.
+ * SHOP LAW (handoff §6.1): only verifiably real reviews, attributed and
+ * linked to the source (their Google Business Profile). This component
+ * renders whatever the content agent passes — the content agent is
+ * responsible for passing only real reviews. Comps use a clearly-marked
+ * placeholder quote, never an invented one.
+ */
+import { GBP_MAPS_URL } from "../../data/business";
+
+interface Props {
+  /** Verbatim review text (the reviewer's words). */
+  quote: string;
+  /** Reviewer's name as published. */
+  author: string;
+  /** e.g. "Google review" */
+  source?: string;
+  /** Link to the review source; defaults to the GBP. */
+  href?: string;
+  /** Star rating 1–5 as published; omit to hide stars. */
+  stars?: number;
+}
+const { quote, author, source = "Google review", href = GBP_MAPS_URL, stars } = Astro.props;
+const starCount = stars ? Math.max(1, Math.min(5, Math.round(stars))) : 0;
+---
+
+<figure class="review">
+  {
+    starCount > 0 && (
+      <div class="review-stars" aria-label={`${starCount} out of 5 stars`}>
+        {Array.from({ length: starCount }).map(() => (
+          <svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor">
+            <path d="M8 1.3l2 4.2 4.6.6-3.4 3.2.9 4.6L8 11.6l-4.1 2.3.9-4.6L1.4 6.1 6 5.5 8 1.3z" />
+          </svg>
+        ))}
+      </div>
+    )
+  }
+  <blockquote class="review-quote">
+    <p>{quote}</p>
+  </blockquote>
+  <figcaption class="review-meta">
+    <span class="review-author">{author}</span>
+    <a class="review-source" href={href} rel="noopener">{source}</a>
+  </figcaption>
+</figure>
+
+<style>
+  .review {
+    padding: var(--space-5) 0 var(--space-5) var(--space-5);
+    border-left: 2px solid var(--c-clay);
+  }
+  .review-stars {
+    display: flex;
+    gap: 0.2rem;
+    color: var(--c-clay);
+    margin-bottom: var(--space-3);
+  }
+  .review-stars svg { width: 0.85rem; height: 0.85rem; }
+  .review-quote p {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 440;
+    line-height: 1.42;
+    letter-spacing: -0.005em;
+    max-width: 44ch;
+  }
+  .review-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+  }
+  .review-author {
+    font-size: var(--text-sm);
+    font-weight: 650;
+  }
+  .review-source {
+    font-size: var(--text-xs);
+    font-weight: 560;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+</style>

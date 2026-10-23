@@ -1,0 +1,92 @@
+---
+/**
+ * CTABand — full-width conversion band (phone-first + contact link).
+ * Tones: "agave" (default, calm close) or "clay" (emergency-adjacent heat).
+ * Copy comes from the page; defaults are safe, verified-facts-only.
+ */
+import { PHONE_DISPLAY, PHONE_TEL } from "../../data/business";
+
+interface Props {
+  tone?: "agave" | "clay" | "ink";
+  eyebrow?: string;
+  title?: string;
+  /** Secondary action target; set null-ish copy via slots if needed. */
+  secondaryHref?: string;
+  secondaryLabel?: string;
+}
+const {
+  tone = "agave",
+  eyebrow = "Talk to a builder",
+  title = "Tell us what you're planning — we'll walk the site with you.",
+  secondaryHref = "/contact",
+  secondaryLabel = "Request an estimate",
+} = Astro.props;
+---
+
+<aside class:list={["cta-band", `cta-${tone}`, "on-dark"]}>
+  <div class="container cta-inner">
+    <div class="cta-copy reveal">
+      <p class="kicker">{eyebrow}</p>
+      <p class="cta-title">{title}</p>
+      <slot />
+    </div>
+    <div class="cta-actions reveal">
+      <a class="btn btn-bone cta-call" href={PHONE_TEL}>
+        <svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"
+          ><path
+            d="M3.7 1.6c.4-.4 1-.4 1.4 0l1.8 1.9c.4.4.4 1 0 1.4l-.9.9a.6.6 0 0 0-.1.7 9.6 9.6 0 0 0 3.6 3.6c.2.1.5.1.7-.1l.9-.9c.4-.4 1-.4 1.4 0l1.9 1.8c.4.4.4 1 0 1.4l-1 1.1c-.6.6-1.5.8-2.3.6C8.7 13 5.9 11.3 4 9.4 2 7.5.5 5.3 1 3.6c.2-.8 1-1.4 1.6-2l1.1 0Z"
+          ></path></svg
+        >
+        <span>{PHONE_DISPLAY}</span>
+      </a>
+      {
+        secondaryHref && (
+          <a class="link-arrow" href={secondaryHref}>
+            {secondaryLabel}
+            <svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M3 10h13M11 4.5 16.5 10 11 15.5" />
+            </svg>
+          </a>
+        )
+      }
+    </div>
+  </div>
+</aside>
+
+<style>
+  .cta-band { padding-block: clamp(3rem, 5vw, 5rem); }
+  .cta-agave { background: var(--c-agave); }
+  .cta-clay { background: var(--c-clay); }
+  .cta-ink { background: var(--c-ink); }
+  .cta-clay :global(.kicker) { color: var(--c-bone-on-dark); }
+  .cta-clay :global(.kicker::before) { background: var(--c-bone-on-dark); }
+  .cta-clay :global(.link-arrow) { color: var(--c-bone-on-dark); }
+
+  .cta-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+  }
+  .cta-title {
+    margin-top: var(--space-3);
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 540;
+    line-height: var(--leading-snug);
+    letter-spacing: -0.01em;
+    max-width: 24ch;
+    text-wrap: balance;
+  }
+  .cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4) var(--space-6);
+  }
+  .cta-call { font-size: var(--text-base); }
+  @media (max-width: 639px) {
+    .cta-call { width: 100%; }
+  }
+</style>

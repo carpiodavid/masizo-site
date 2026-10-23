@@ -1,0 +1,71 @@
+---
+/**
+ * FAQ — semantic <details>/<summary> accordion. Takes [{ q, answerHtml }].
+ * Pure HTML disclosure (no JS). Pages that render this should also pass the
+ * same items to faqNode(...) for FAQPage schema (content agent's job).
+ */
+interface Item {
+  q: string;
+  answerHtml: string;
+}
+interface Props {
+  items: Item[];
+  /** Open the first item by default. */
+  openFirst?: boolean;
+}
+const { items, openFirst = false } = Astro.props;
+---
+
+<div class="faq">
+  {
+    items.map((item, i) => (
+      <details class="faq-item" open={openFirst && i === 0}>
+        <summary class="faq-q">
+          <span>{item.q}</span>
+          <svg class="faq-icon" viewBox="0 0 16 16" aria-hidden="true" stroke="currentColor" stroke-width="1.5" fill="none">
+            <path class="faq-v" d="M8 3v10" />
+            <path d="M3 8h10" />
+          </svg>
+        </summary>
+        <div class="faq-a" set:html={item.answerHtml} />
+      </details>
+    ))
+  }
+</div>
+
+<style>
+  .faq {
+    border-top: 1px solid var(--c-line);
+  }
+  .faq-item {
+    border-bottom: 1px solid var(--c-line);
+  }
+  .faq-q {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+    padding: var(--space-5) var(--space-2);
+    font-family: var(--font-text);
+    font-size: var(--text-lg);
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+  }
+  .faq-q::-webkit-details-marker { display: none; }
+  .faq-q:hover { color: var(--c-clay-deep); }
+  .faq-icon {
+    flex: none;
+    width: 1rem;
+    height: 1rem;
+    color: var(--c-clay);
+    transition: transform 160ms ease;
+  }
+  .faq-item[open] .faq-icon { transform: rotate(45deg); }
+  .faq-a {
+    padding: 0 var(--space-2) var(--space-5);
+    max-width: 68ch;
+    color: var(--c-ink-soft);
+  }
+  .faq-a :global(p + p) { margin-top: var(--space-3); }
+</style>
