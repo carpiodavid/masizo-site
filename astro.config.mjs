@@ -8,6 +8,10 @@ export default defineConfig({
   site: "https://www.masizodevelopment.com",
   output: "static",
   trailingSlash: "never",
+  // file format emits services/roofing.html so Cloudflare Pages serves
+  // /services/roofing directly (no 308 to a trailing-slash URL), matching
+  // the no-trailing-slash canonicals.
+  build: { format: "file" },
   integrations: [
     sitemap({
       // Keep noindex conversion pages out of the sitemap.

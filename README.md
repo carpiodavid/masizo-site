@@ -25,7 +25,7 @@ all (GA4 is opt-in by env var).
 
 ```
 astro.config.mjs            site URL, static output, @astrojs/sitemap
-wrangler.toml               Cloudflare Pages config: LEADS KV binding (id
+the Cloudflare Pages dashboard (wrangler.toml was removed: with Pages config present it overrides dashboard bindings)               Cloudflare Pages config: LEADS KV binding (id
                             placeholder), LEAD_EMAIL_TO/FROM vars
 src/
   data/business.ts          THE single source of truth for every business fact
